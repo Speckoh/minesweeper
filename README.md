@@ -90,5 +90,3 @@
     If the Board Array is empty or all Squares inside this Array is equal to Mine, then the player has Won!
     Display a Winning Message on Screen and all Mines to be Revealed.
 ```
-
-Testing the Update to Readme

@@ -218,7 +218,8 @@ function CheckSouthWestSquare(board, index){
 //Check For Empty
 //############
 function CheckNorthForEmpty(board, index){
-    if(CheckNorth(board,index).adjacentMines === 0 && !CheckNorth(board,index).revealed){
+    if(CheckNorth(board,index).adjacentMines === 0 && !CheckNorth(board,index).revealed
+    && !CheckNorth(board,index).flagged){
         let element = document.getElementById(CheckNorth(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorth(board,index).revealed = true;
@@ -226,7 +227,8 @@ function CheckNorthForEmpty(board, index){
     }
 }
 function CheckEastForEmpty(board, index){
-    if(CheckEast(board,index).adjacentMines === 0 && !CheckEast(board,index).revealed){
+    if(CheckEast(board,index).adjacentMines === 0 && !CheckEast(board,index).revealed
+    && !CheckEast(board,index).flagged){
         let element = document.getElementById(CheckEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckEast(board,index).revealed = true;
@@ -234,7 +236,8 @@ function CheckEastForEmpty(board, index){
     }
 }
 function CheckSouthForEmpty(board, index){
-    if(CheckSouth(board,index).adjacentMines === 0 && !CheckSouth(board,index).revealed){
+    if(CheckSouth(board,index).adjacentMines === 0 && !CheckSouth(board,index).revealed
+    && !CheckSouth(board,index).flagged){
         let element = document.getElementById(CheckSouth(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouth(board,index).revealed = true;
@@ -242,7 +245,8 @@ function CheckSouthForEmpty(board, index){
     }
 }
 function CheckWestForEmpty(board, index){
-    if(CheckWest(board,index).adjacentMines === 0 && !CheckWest(board,index).revealed){
+    if(CheckWest(board,index).adjacentMines === 0 && !CheckWest(board,index).revealed
+    && !CheckWest(board,index).flagged){
         let element = document.getElementById(CheckWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckWest(board,index).revealed = true;
@@ -250,7 +254,8 @@ function CheckWestForEmpty(board, index){
     }
 }
 function CheckNorthWestForEmpty(board, index){
-    if(CheckNorthWest(board,index).adjacentMines === 0 && !CheckNorthWest(board,index).revealed){
+    if(CheckNorthWest(board,index).adjacentMines === 0 && !CheckNorthWest(board,index).revealed
+    && !CheckNorthWest(board,index).flagged){
         let element = document.getElementById(CheckNorthWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorthWest(board,index).revealed = true;
@@ -258,7 +263,8 @@ function CheckNorthWestForEmpty(board, index){
     }
 }
 function CheckNorthEastForEmpty(board, index){
-    if(CheckNorthEast(board,index).adjacentMines === 0 && !CheckNorthEast(board,index).revealed){
+    if(CheckNorthEast(board,index).adjacentMines === 0 && !CheckNorthEast(board,index).revealed
+    && !CheckNorthEast(board,index).flagged){
         let element = document.getElementById(CheckNorthEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorthEast(board,index).revealed = true;
@@ -266,7 +272,8 @@ function CheckNorthEastForEmpty(board, index){
     }
 }
 function CheckSouthEastForEmpty(board, index){
-    if(CheckSouthEast(board,index).adjacentMines === 0 && !CheckSouthEast(board,index).revealed){
+    if(CheckSouthEast(board,index).adjacentMines === 0 && !CheckSouthEast(board,index).revealed
+    && !CheckSouthEast(board,index).flagged){
         let element = document.getElementById(CheckSouthEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouthEast(board,index).revealed = true;
@@ -274,7 +281,8 @@ function CheckSouthEastForEmpty(board, index){
     }
 }
 function CheckSouthWestForEmpty(board, index){
-    if(CheckSouthWest(board,index).adjacentMines === 0 && !CheckSouthWest(board,index).revealed){
+    if(CheckSouthWest(board,index).adjacentMines === 0 && !CheckSouthWest(board,index).revealed
+    && !CheckSouthWest(board,index).revealed){
         let element = document.getElementById(CheckSouthWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouthWest(board,index).revealed = true;
@@ -285,56 +293,64 @@ function CheckSouthWestForEmpty(board, index){
 //Check For Adjacent Numbers
 //############
 function CheckNorthForNumber(board, index){
-    if(CheckNorth(board,index).adjacentMines > 0 && !CheckNorth(board,index).revealed){
+    if(CheckNorth(board,index).adjacentMines > 0 && !CheckNorth(board,index).revealed
+    && !CheckNorth(board,index).flagged){
         let element = document.getElementById(CheckNorth(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorth(board,index).revealed = true;
     }
 }
 function CheckEastForNumber(board, index){
-    if(CheckEast(board,index).adjacentMines > 0 && !CheckEast(board,index).revealed){
+    if(CheckEast(board,index).adjacentMines > 0 && !CheckEast(board,index).revealed
+    && !CheckEast(board,index).flagged){
         let element = document.getElementById(CheckEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckEast(board,index).revealed = true;
     }
 }
 function CheckSouthForNumber(board, index){
-    if(CheckSouth(board,index).adjacentMines > 0 && !CheckSouth(board,index).revealed){
+    if(CheckSouth(board,index).adjacentMines > 0 && !CheckSouth(board,index).revealed
+    && !CheckSouth(board,index).flagged){
         let element = document.getElementById(CheckSouth(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouth(board,index).revealed = true;
     }
 }
 function CheckWestForNumber(board, index){
-    if(CheckWest(board,index).adjacentMines > 0 && !CheckWest(board,index).revealed){
+    if(CheckWest(board,index).adjacentMines > 0 && !CheckWest(board,index).revealed
+    && !CheckWest(board,index).flagged){
         let element = document.getElementById(CheckWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckWest(board,index).revealed = true;
     }
 }
 function CheckNorthWestForNumber(board, index){
-    if(CheckNorthWest(board,index).adjacentMines > 0 && !CheckNorthWest(board,index).revealed){
+    if(CheckNorthWest(board,index).adjacentMines > 0 && !CheckNorthWest(board,index).revealed
+    && !CheckNorthWest(board,index).flagged){
         let element = document.getElementById(CheckNorthWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorthWest(board,index).revealed = true;
     }
 }
 function CheckNorthEastForNumber(board, index){
-    if(CheckNorthEast(board,index).adjacentMines > 0 && !CheckNorthEast(board,index).revealed){
+    if(CheckNorthEast(board,index).adjacentMines > 0 && !CheckNorthEast(board,index).revealed
+    && !CheckNorthEast(board,index).flagged){
         let element = document.getElementById(CheckNorthEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckNorthEast(board,index).revealed = true;
     }
 }
 function CheckSouthEastForNumber(board, index){
-    if(CheckSouthEast(board,index).adjacentMines > 0 && !CheckSouthEast(board,index).revealed){
+    if(CheckSouthEast(board,index).adjacentMines > 0 && !CheckSouthEast(board,index).revealed
+    && !CheckSouthEast(board,index).flagged){
         let element = document.getElementById(CheckSouthEast(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouthEast(board,index).revealed = true;
     }
 }
 function CheckSouthWestForNumber(board, index){
-    if(CheckSouthWest(board,index).adjacentMines > 0 && !CheckSouthWest(board,index).revealed){
+    if(CheckSouthWest(board,index).adjacentMines > 0 && !CheckSouthWest(board,index).revealed
+    && !CheckSouthWest(board,index).flagged){
         let element = document.getElementById(CheckSouthWest(board,index).index);
         element.removeChild(element.firstChild);
         CheckSouthWest(board,index).revealed = true;
@@ -498,10 +514,13 @@ gameContainer.addEventListener('contextmenu', function (e) {
 
 const squares = document.querySelectorAll('.square');
 squares.forEach((event, index) => {
-    event.addEventListener('mousedown', (e) => {
-        if(!playerHasLost && !playerHasWon && e.button === 0){
+    event.addEventListener('mouseup', (e) => {
+        if(!playerHasLost && !playerHasWon && !boardArray[index].flagged
+            && e.button === 0){
             if(boardArray[index].hasMine){
                 console.log("You stepped on mine, you Lose!");
+                let element = document.querySelector(".finishMessage");
+                element.innerHTML = "Too Bad, Try Again!";
                 for (let i = 0; i < boardArray.length; i++){
                     if(boardArray[i].hasMine){
                         let element = document.getElementById(boardArray[i].index);
@@ -518,9 +537,10 @@ squares.forEach((event, index) => {
             else if(!boardArray[index].hasMine && !boardArray[index].revealed){
                 if(boardArray[index].adjacentMines > 0){
                     let numberOfMines = document.createElement("div")
-                    numberOfMines.setAttribute("id", "numberOfMines");
+                    numberOfMines.classList.add("numberOfMines");
                     numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
                     event.appendChild(numberOfMines);
+                    numberOfMines.setAttribute("id", `mines${boardArray[index].adjacentMines}`);
                     boardArray[index].revealed = true;
                     boardArray[index].flooded = true;
                     event.removeChild(event.firstChild);
@@ -541,9 +561,10 @@ squares.forEach((event, index) => {
                             boardArray[i].revealed && !boardArray[i].flooded){
                             let element = document.getElementById(boardArray[i].index);
                             let numberOfMines = document.createElement("div")
-                            numberOfMines.setAttribute("id", "numberOfMines");
+                            numberOfMines.classList.add("numberOfMines");
                             numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
                             element.appendChild(numberOfMines);
+                            numberOfMines.setAttribute("id", `mines${boardArray[i].adjacentMines}`);
                             boardArray[i].flooded = true;
                         }
                     }
@@ -556,11 +577,13 @@ squares.forEach((event, index) => {
                     if(totalRevealed === boardArray.length - mineArray.length){
                         console.log("You Win!");
                         playerHasWon = true;
+                        let element = document.querySelector(".finishMessage");
+                        element.innerHTML = "Nice Work! You Won!";
                     }
                 }
             }
         }
-        if(!playerHasLost && !playerHasWon && e.button == 2){
+        if(!playerHasLost && !playerHasWon && e.button === 2){
             if(!boardArray[index].revealed){
                 if(!boardArray[index].flagged){
                     let element = document.getElementById(boardArray[index].index).firstChild;

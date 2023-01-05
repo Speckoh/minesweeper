@@ -1,5 +1,7 @@
 const gameContainer = document.querySelector(".gameContainer");
 const boardContainer = document.querySelector(".gridContainer");
+const timer = document.querySelector(".timer");
+
 const mineSprite = "http://www.speckoh.com/images/mine.png";
 const flagSprite = "http://www.speckoh.com/images/flag.png";
 
@@ -12,9 +14,13 @@ let height = 9;
 let width = 9;
 let area = height * width;
 
+let seconds = 0;
+let minutes = 0;
+
 let emptyCheck = false;
 let totalRevealed = 0;
 
+let gameStarted = false;
 let playerHasWon = false;
 let playerHasLost = false;
 
@@ -29,26 +35,29 @@ class Square {
     }
 }
 
+StartTimer();
 RandomizeMines();
-console.log(mineArray);
-console.log(boardArray);
+CreateBoard();
+CheckForAdjacentMines();
+ResetSquareClicks();
 
 //Creates Squares for the Board and Adds the Mines
-for (let i = 0; i < area; i++){
+function CreateBoard(){
+    for (let i = 0; i < area; i++){
     
-    boardArray.push(new Square(i));
-    let box = document.createElement("div");
-    box.classList.add("square");
-    box.setAttribute("id", `${boardArray[i].index}`);
-    box.innerHTML = `<div class="hidden"></div>`
-    boardContainer.appendChild(box);
-    for (let j = 0; j < mineArray.length; j++){
-        if(boardArray[i].index === mineArray[j].index){
-            boardArray[i].hasMine = true;
+        boardArray.push(new Square(i));
+        let box = document.createElement("div");
+        box.classList.add("square");
+        box.setAttribute("id", `${boardArray[i].index}`);
+        box.innerHTML = `<div class="hidden"></div>`
+        boardContainer.appendChild(box);
+        for (let j = 0; j < mineArray.length; j++){
+            if(boardArray[i].index === mineArray[j].index){
+                boardArray[i].hasMine = true;
+            }
         }
     }
 }
-CheckForAdjacentMines();
 
 function CheckForAdjacentMines(){
     for (let i = 0; i < area; i++){
@@ -507,98 +516,184 @@ function FloodNumberSquares(){
     }
 }
 
+function StartTimer(){
+    setInterval(function(){
+        if(gameStarted){
+            seconds++;
+            if(seconds === 60){
+                minutes++;
+            }
+            if(minutes < 60){
+                timer.firstChild.innerHTML = FormatMinutes() + ":" + FormatSeconds();
+            }
+            else if(minutes >= 60){
+                timer.firstChild.innerHTML = "60:00";
+            }
+        }
+    }, 1000);
+}
+
+function FormatSeconds(){
+    if(seconds < 10){
+        seconds = "0" + seconds;
+    }
+    if(seconds >= 60){
+        seconds = "00";
+    }
+    return seconds;
+}
+function FormatMinutes(){
+    if(minutes < 10 && minutes > 0){
+        countMinutes = "0" + minutes;
+    }
+    else if(minutes > 10 && minutes < 60){
+        countMinutes = minutes;
+    }
+    else if(minutes === 0){
+        countMinutes = "00";
+    }
+    return countMinutes;
+}
+
+function ResetGame(container){
+    while(container.lastElementChild){
+        container.removeChild(container.lastElementChild);
+    }
+    boardArray = [];
+    randomArray = [];
+    mineArray = [];
+    totalRevealed = 0;
+    emptyCheck = false;
+    playerHasWon = false;
+    playerHasLost = false;
+    gameStarted = false;
+    seconds = 0;
+    minutes = 0;
+    RandomizeMines();
+    CreateBoard();
+    CheckForAdjacentMines();
+    ResetSquareClicks();
+
+    let message = document.querySelector(".finishMessage");
+    message.innerHTML = "&nbsp;";
+    timer.firstChild.innerHTML = "00:00";
+}
+
 //Click Events
-gameContainer.addEventListener('contextmenu', function (e) {
+gameContainer.addEventListener("contextmenu", function (e) {
     e.preventDefault();
 });
-
-const squares = document.querySelectorAll('.square');
-squares.forEach((event, index) => {
-    event.addEventListener('mouseup', (e) => {
-        if(!playerHasLost && !playerHasWon && !boardArray[index].flagged
-            && e.button === 0){
-            if(boardArray[index].hasMine){
-                console.log("You stepped on mine, you Lose!");
-                let element = document.querySelector(".finishMessage");
-                element.innerHTML = "Too Bad, Try Again!";
-                for (let i = 0; i < boardArray.length; i++){
-                    if(boardArray[i].hasMine){
-                        let element = document.getElementById(boardArray[i].index);
-                        let mines = document.createElement("div")
-                        mines.innerHTML = `<div class="hidden">
-                        <img id="mine" src=${mineSprite}></div>`;
-                        element.removeChild(element.firstChild);
-                        element.appendChild(mines);
-                    }
-                }
-                // event.removeChild(event.firstChild);
-                playerHasLost = true;
-            }
-            else if(!boardArray[index].hasMine && !boardArray[index].revealed){
-                if(boardArray[index].adjacentMines > 0){
-                    let numberOfMines = document.createElement("div")
-                    numberOfMines.classList.add("numberOfMines");
-                    numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
-                    event.appendChild(numberOfMines);
-                    numberOfMines.setAttribute("id", `mines${boardArray[index].adjacentMines}`);
-                    boardArray[index].revealed = true;
-                    boardArray[index].flooded = true;
-                    event.removeChild(event.firstChild);
-                }
-                else if(boardArray[index].adjacentMines === 0){
-                    boardArray[index].revealed = true;
-                    event.removeChild(event.firstChild);
-                    emptyCheck = true;
-                    while(emptyCheck){
-                        emptyCheck = false;
-                        FloodEmptySquares();
-                    }
+document.addEventListener("click", function (event) {
+    if(event.target.matches("#resetButton")){
+        ResetGame(boardContainer);
+    }
+});
+function ResetSquareClicks(){
+    const squares = document.querySelectorAll(".square");
+    squares.forEach(function (event, index) {
+        event.addEventListener("mouseup", function (e) {
+            if(!playerHasLost && !playerHasWon && !boardArray[index].flagged
+                && e.button === 0){
+                if(boardArray[index].hasMine){
+                    let loseMsg = document.querySelector(".finishMessage");
+                    loseMsg.innerHTML = "Too Bad, Try Again!";
+                    gameStarted = false;
                     for (let i = 0; i < boardArray.length; i++){
-                        FloodNumberSquares();
-                    }
-                    for (let i = 0; i < boardArray.length; i++){
-                        if(boardArray[i].adjacentMines > 0 && 
-                            boardArray[i].revealed && !boardArray[i].flooded){
+                        if(boardArray[i].hasMine){
                             let element = document.getElementById(boardArray[i].index);
-                            let numberOfMines = document.createElement("div")
-                            numberOfMines.classList.add("numberOfMines");
-                            numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
-                            element.appendChild(numberOfMines);
-                            numberOfMines.setAttribute("id", `mines${boardArray[i].adjacentMines}`);
-                            boardArray[i].flooded = true;
+                            let mines = document.createElement("div")
+                            mines.innerHTML = `<div class="hidden">
+                            <img id="mine" src=${mineSprite}></div>`;
+                            element.removeChild(element.firstChild);
+                            element.appendChild(mines);
+                        }
+                    }
+                    let element = document.getElementById(boardArray[index].index);
+                    element.firstElementChild.classList.add("detonate")
+                    element.firstElementChild.innerHTML = `<img id="mine" src=${mineSprite}>`;
+                    playerHasLost = true;
+                }
+                else if(!boardArray[index].hasMine && !boardArray[index].revealed){
+                    if(boardArray[index].adjacentMines > 0){
+                        gameStarted = true;
+                        let numberOfMines = document.createElement("div")
+                        numberOfMines.classList.add("numberOfMines");
+                        numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
+                        event.appendChild(numberOfMines);
+                        numberOfMines.setAttribute("id", `mines${boardArray[index].adjacentMines}`);
+                        boardArray[index].revealed = true;
+                        boardArray[index].flooded = true;
+                        event.removeChild(event.firstChild);
+                    }
+                    else if(boardArray[index].adjacentMines === 0){
+                        gameStarted = true;
+                        boardArray[index].revealed = true;
+                        event.removeChild(event.firstChild);
+                        emptyCheck = true;
+                        while(emptyCheck){
+                            emptyCheck = false;
+                            FloodEmptySquares();
+                        }
+                        for (let i = 0; i < boardArray.length; i++){
+                            FloodNumberSquares();
+                        }
+                        for (let i = 0; i < boardArray.length; i++){
+                            if(boardArray[i].adjacentMines > 0 && 
+                                boardArray[i].revealed && !boardArray[i].flooded){
+                                let element = document.getElementById(boardArray[i].index);
+                                let numberOfMines = document.createElement("div")
+                                numberOfMines.classList.add("numberOfMines");
+                                numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
+                                element.appendChild(numberOfMines);
+                                numberOfMines.setAttribute("id", `mines${boardArray[i].adjacentMines}`);
+                                boardArray[i].flooded = true;
+                            }
+                        }
+                    }
+                    totalRevealed = 0;
+                    for (let i = 0; i < boardArray.length; i++){
+                        if(!boardArray[i].hasMine && boardArray[i].revealed){
+                            totalRevealed++;
+                        }
+                        if(totalRevealed === boardArray.length - mineArray.length){
+                            console.log("You Win!");
+                            playerHasWon = true;
+                            gameStarted = false;
+                            let element = document.querySelector(".finishMessage");
+                            element.innerHTML = "Nice Work! You Won!";
                         }
                     }
                 }
-                totalRevealed = 0;
-                for (let i = 0; i < boardArray.length; i++){
-                    if(!boardArray[i].hasMine && boardArray[i].revealed){
-                        totalRevealed++;
+            }
+            if(!playerHasLost && !playerHasWon && e.button === 2){
+                if(!boardArray[index].revealed){
+                    if(!boardArray[index].flagged){
+                        let element = document.getElementById(boardArray[index].index).firstChild;
+                        let flag = document.createElement("div")
+                        flag.setAttribute("id", "flag");
+                        flag.innerHTML = `<img src=${flagSprite}>`;
+                        element.appendChild(flag);
+                        boardArray[index].flagged = true;
                     }
-                    if(totalRevealed === boardArray.length - mineArray.length){
-                        console.log("You Win!");
-                        playerHasWon = true;
-                        let element = document.querySelector(".finishMessage");
-                        element.innerHTML = "Nice Work! You Won!";
+                    else{
+                        let element = document.getElementById(boardArray[index].index).firstChild;
+                        element.removeChild(element.firstChild);
+                        boardArray[index].flagged = false;
                     }
                 }
             }
-        }
-        if(!playerHasLost && !playerHasWon && e.button === 2){
-            if(!boardArray[index].revealed){
-                if(!boardArray[index].flagged){
-                    let element = document.getElementById(boardArray[index].index).firstChild;
-                    let flag = document.createElement("div")
-                    flag.setAttribute("id", "flag");
-                    flag.innerHTML = `<img src=${flagSprite}>`;
-                    element.appendChild(flag);
-                    boardArray[index].flagged = true;
-                }
-                else{
-                    let element = document.getElementById(boardArray[index].index).firstChild;
-                    element.removeChild(element.firstChild);
-                    boardArray[index].flagged = false;
-                }
+        });
+        event.addEventListener("mouseenter", function () {
+            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
+                let element = document.getElementById(boardArray[index].index);
+                element.firstChild.style.backgroundColor = "whitesmoke";
             }
-        }
+        });
+        event.addEventListener("mouseleave", function () {
+            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
+                let element = document.getElementById(boardArray[index].index);
+                element.firstChild.style.backgroundColor = "rgb(190, 190, 190)";
+            }
+        });
     });
-});
+}

@@ -11,13 +11,23 @@
     <title>Minesweeper</title>
 </head>
 <body>
-    <div class="gameContainer">
-        <h2>Minesweeper</h2>
-        <div class="gridContainer">
-            <!-- Square Boxes Go Here -->
+    <div class="browser">
+        <div class="gameTitle"><h2>MineSweeper</h2></div>
+        <div class="gameContainer">
+            <div class="controls">
+                <div class="timer"><div>00:00</div></div>
+                <div class="reset"><button id="resetButton">Reset</button></div>
+            </div>
+            <div class="gridContainer">
+                <!-- Square Boxes Go Here -->
+            </div>
+            <div class="options">
+                <button id="resetButton">O</button>
+            </div>
         </div>
+        <div class="finishMessage">&nbsp;</div>
     </div>
-    <div class="finishMessage"></div>
+    
     <script src="script.js"></script>
 </body>
 </html>

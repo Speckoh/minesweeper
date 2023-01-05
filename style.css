@@ -3,29 +3,28 @@
 } */
 body{
     background-color: white;
-    height: 100vh;
     font-family: 'Kanit', sans-serif;
+}
+.browser{
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    align-content: center;
+    min-height: 100vh;
 }
 h2{
     text-align: center;
     font-size: 48px;
-    margin: 15px;
-}
-.finishMessage{
-    font-size: 30px;
-    text-align: center;
-    position: relative;
-    margin-top: 20px;
-    top: 15%;
+    margin: 20px;
 }
 .gameContainer{
     position: relative;
-    top: 15%;
-    height: 480px;
+    height: 560px;
     width: 400px;
     margin: 0 auto;
     background-color: whitesmoke;
     border: 3px solid rgb(30, 30, 30);
+    border-radius: 8px;
 }
 .gridContainer{
     display: grid;
@@ -34,18 +33,81 @@ h2{
     grid-auto-rows: 40px;
     justify-content: center;
     align-content: center;
-    height: 360px;
     width: 360px;
-    margin-top: -5px;
-    margin-left: auto;
+    height: 360px;
+    margin-top: 26px;
+    margin-left: 18px;
     margin-right: auto;
+}
+.controls{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
+    align-content: center;
+}
+.options{
+    display: grid;
+    justify-content: center;
+    align-content: center;
+}
+.options > button{
+    margin-top: 18px;
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    background-color: rgb(200, 200, 200);
+    border: 0px;
+}
+.options > button:hover{
+    background-color: rgb(185, 185, 185);
+}
+.options > button:active{
+    background-color: rgb(200, 200, 200);
+}
+.timer, .reset{
+    margin: auto;
+    margin-top: 24px;
+}
+.timer, .reset > button{
+    width: 100px;
+    height: 50px;
+    border: 0px;
+}
+.timer{
+    border-radius: 8px;
+    background-color: rgb(100, 100, 100);
+}
+.timer > div{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: whitesmoke;
+    text-align: center;
+    font-size: 36px;
+    margin-top: 4px;
+}
+.reset > button{
+    font-size: 30px;
+    border-radius: 8px;
+    background-color: rgb(200, 200, 200);
+}
+.reset > button:hover{
+    background-color: rgb(185, 185, 185);
+}
+.reset > button:active{
+    background-color: rgb(200, 200, 200);
 }
 .square{
     width: 40px;
     height: 40px;
+    margin: -1px 1px;
     border: 1px solid rgb(30, 30, 30);
 }
-.hidden{
+.finishMessage{
+    font-size: 30px;
+    text-align: center;
+    position: relative;
+    margin-top: 20px;
+}
+.hidden, .detonate{
     width: 38px;
     height: 38px;
     margin-left: 0px;
@@ -53,10 +115,13 @@ h2{
     border: 1px solid rgb(30, 30, 30);
     background-color: rgb(190, 190, 190);
 }
+.detonate{
+    background-color: rgb(255, 0, 0);
+}
 #mine{
     width: 35px;
     height: 35px;
-    margin: 2px 2px;
+    margin: 2px 2px 0 1px;
 }
 .numberOfMines{
     margin-top: -10px;

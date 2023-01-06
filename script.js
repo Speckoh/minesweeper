@@ -7,8 +7,10 @@ const dropdown = document.getElementById("dropdown");
 const difficultyInfo = document.querySelector(".difficultyInfo");
 const timer = document.querySelector(".timer");
 
-const mineSprite = "http://www.speckoh.com/images/mine.png";
-const flagSprite = "http://www.speckoh.com/images/flag.png";
+// const mineSprite = "http://www.speckoh.com/images/mine.png";
+// const flagSprite = "http://www.speckoh.com/images/flag.png";
+const mineSprite = "assets/mine.png";
+const flagSprite = "assets/flag.png";
 
 let boardArray = [];
 let randomArray = [];

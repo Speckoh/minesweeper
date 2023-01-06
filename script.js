@@ -1,5 +1,10 @@
 const gameContainer = document.querySelector(".gameContainer");
+const optionContainer = document.querySelector(".optionContainer");
 const boardContainer = document.querySelector(".gridContainer");
+const optionButton = document.getElementById("optionButton");
+const returnButton = document.getElementById("returnButton");
+const dropdown = document.getElementById("dropdown");
+const difficultyInfo = document.querySelector(".difficultyInfo");
 const timer = document.querySelector(".timer");
 
 const mineSprite = "http://www.speckoh.com/images/mine.png";
@@ -8,10 +13,10 @@ const flagSprite = "http://www.speckoh.com/images/flag.png";
 let boardArray = [];
 let randomArray = [];
 let mineArray = [];
-let mines = 10;
+let mines = 40;
 
-let height = 9;
-let width = 9;
+let height = 16;
+let width = 16;
 let area = height * width;
 
 let seconds = 0;
@@ -580,6 +585,42 @@ function ResetGame(container){
 }
 
 //Click Events
+optionButton.onclick = function(){
+    optionContainer.style.display = "block";
+    gameContainer.style.display = "none";
+}
+returnButton.onclick = function(){
+    if(dropdown.value === "Easy"){
+        mines = 10;
+        height = 9;
+        width = 9;
+    }
+    else if(dropdown.value === "Normal"){
+        mines = 40;
+        height = 16;
+        width = 16;
+    }
+    else if(dropdown.value === "Hard"){
+        mines = 99;
+        height = 16;
+        width = 30;
+    }
+    gameContainer.style.display = "block";
+    optionContainer.style.display = "none";
+    // ResetGame(boardContainer);
+}
+dropdown.onchange = function(){
+    if(dropdown.value === "Easy"){
+        difficultyInfo.innerHTML = "9x9 Board, 10 Mines";
+    }
+    else if(dropdown.value === "Normal"){
+        difficultyInfo.innerHTML = "16x16 Board, 40 Mines";
+    }
+    else if(dropdown.value === "Hard"){
+        difficultyInfo.innerHTML = "16x30 Board, 99 Mines";
+    }
+}
+
 gameContainer.addEventListener("contextmenu", function (e) {
     e.preventDefault();
 });
@@ -660,7 +701,9 @@ function ResetSquareClicks(){
                             playerHasWon = true;
                             gameStarted = false;
                             let element = document.querySelector(".finishMessage");
-                            element.innerHTML = "Nice Work! You Won!";
+                            element.innerHTML = "Completed in " +
+                            minutes + " min, " + seconds + " secs!"; 
+                            // FormatMinutes() + ":" + FormatSeconds() + "!";
                         }
                     }
                 }
@@ -686,7 +729,7 @@ function ResetSquareClicks(){
         event.addEventListener("mouseenter", function () {
             if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
                 let element = document.getElementById(boardArray[index].index);
-                element.firstChild.style.backgroundColor = "whitesmoke";
+                element.firstChild.style.backgroundColor = "lightgreen";
             }
         });
         event.addEventListener("mouseleave", function () {

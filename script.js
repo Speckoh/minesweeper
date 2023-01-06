@@ -13,10 +13,10 @@ const flagSprite = "http://www.speckoh.com/images/flag.png";
 let boardArray = [];
 let randomArray = [];
 let mineArray = [];
-let mines = 40;
+let mines = 10;
 
-let height = 16;
-let width = 16;
+let height = 9;
+let width = 9;
 let area = height * width;
 
 let seconds = 0;
@@ -583,7 +583,18 @@ function ResetGame(container){
     message.innerHTML = "&nbsp;";
     timer.firstChild.innerHTML = "00:00";
 }
-
+function DifficultySettings(mineInt, heightInt, widthInt, 
+gameHeight, gameWidth, boardGrid, boardHeight, boardWidth){
+    mines = mineInt;
+    height = heightInt;
+    width = widthInt;
+    area = height * width;
+    gameContainer.style.height = gameHeight;
+    gameContainer.style.width = gameWidth;
+    boardContainer.style.gridTemplateColumns = boardGrid;
+    boardContainer.style.height = boardHeight;
+    boardContainer.style.width = boardWidth;
+}
 //Click Events
 optionButton.onclick = function(){
     optionContainer.style.display = "block";
@@ -591,23 +602,17 @@ optionButton.onclick = function(){
 }
 returnButton.onclick = function(){
     if(dropdown.value === "Easy"){
-        mines = 10;
-        height = 9;
-        width = 9;
+        DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
     }
     else if(dropdown.value === "Normal"){
-        mines = 40;
-        height = 16;
-        width = 16;
+        DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
     }
     else if(dropdown.value === "Hard"){
-        mines = 99;
-        height = 16;
-        width = 30;
+        DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
     }
     gameContainer.style.display = "block";
     optionContainer.style.display = "none";
-    // ResetGame(boardContainer);
+    ResetGame(boardContainer);
 }
 dropdown.onchange = function(){
     if(dropdown.value === "Easy"){

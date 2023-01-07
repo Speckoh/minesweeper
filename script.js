@@ -6,9 +6,9 @@ const returnButton = document.getElementById("returnButton");
 const dropdown = document.getElementById("dropdown");
 const difficultyInfo = document.querySelector(".difficultyInfo");
 const timer = document.querySelector(".timer");
+const browser = document.querySelector(".browser");
+const diffuser = document.querySelector(".diffuser");
 
-// const mineSprite = "http://www.speckoh.com/images/mine.png";
-// const flagSprite = "http://www.speckoh.com/images/flag.png";
 const mineSprite = "assets/mine.png";
 const flagSprite = "assets/flag.png";
 
@@ -16,6 +16,7 @@ let boardArray = [];
 let randomArray = [];
 let mineArray = [];
 let mines = 10;
+let diffuse = 10;
 
 let height = 9;
 let width = 9;
@@ -42,12 +43,36 @@ class Square {
     }
 }
 
+Initialize();
 StartTimer();
-RandomizeMines();
-CreateBoard();
-CheckForAdjacentMines();
-ResetSquareClicks();
-
+function Initialize(){
+    RandomizeMines();
+    CreateBoard();
+    CheckForAdjacentMines();
+    ResetSquareClicks();
+}
+//Mine Randomizer
+function RandomizeMines(){
+    if (randomArray.length === 0){
+        let randomIndex = Math.floor(Math.random() * area);
+        randomArray.push(randomIndex);
+    }
+    while (randomArray.length < area){
+        let randomIndex = Math.floor(Math.random() * area);
+        let numIsInArray = false;
+        for (let i = 0; i < randomArray.length; i++){
+            if(randomIndex === randomArray[i]){
+                numIsInArray = true;
+            }
+        }
+        if(!numIsInArray){
+            randomArray.push(randomIndex);
+        }
+    }
+    for (let i = 0; i < mines; i++){
+        mineArray.push(new Square(randomArray[i]));
+    }
+}
 //Creates Squares for the Board and Adds the Mines
 function CreateBoard(){
     for (let i = 0; i < area; i++){
@@ -64,8 +89,10 @@ function CreateBoard(){
             }
         }
     }
+    diffuse = mineArray.length;
+    diffuser.firstChild.innerHTML = diffuse;
 }
-
+//Check for Adjacent Mines When Initializing and assigning adjacentMine Value
 function CheckForAdjacentMines(){
     for (let i = 0; i < area; i++){
         if(boardArray[i].index === 0){
@@ -137,32 +164,9 @@ function CheckForAdjacentMines(){
     } 
 
 }
-
-//Mine Randomizer
-function RandomizeMines(){
-    if (randomArray.length === 0){
-        let randomIndex = Math.floor(Math.random() * area);
-        randomArray.push(randomIndex);
-    }
-    while (randomArray.length < area){
-        let randomIndex = Math.floor(Math.random() * area);
-        let numIsInArray = false;
-        for (let i = 0; i < randomArray.length; i++){
-            if(randomIndex === randomArray[i]){
-                numIsInArray = true;
-            }
-        }
-        if(!numIsInArray){
-            randomArray.push(randomIndex);
-        }
-    }
-    for (let i = 0; i < mines; i++){
-        mineArray.push(new Square(randomArray[i]));
-    }
-}
-//############
+//###################
 //Returns Values
-//############
+//###################
 function CheckNorth(board, index){
     return board[index - width];
 }
@@ -187,9 +191,9 @@ function CheckSouthEast(board, index){
 function CheckSouthWest(board, index){
     return board[(index + width) - 1];
 }
-//############
+//###################
 //Initial Check For Mines
-//############
+//###################
 function CheckNorthSquare(board, index){
     if(board[index - width].hasMine){
         board[index].adjacentMines++;
@@ -230,9 +234,9 @@ function CheckSouthWestSquare(board, index){
         board[index].adjacentMines++;
     }
 }
-//############
-//Check For Empty
-//############
+//###################
+//Check For Empty Adjacent Squares when Flooding
+//###################
 function CheckNorthForEmpty(board, index){
     if(CheckNorth(board,index).adjacentMines === 0 && !CheckNorth(board,index).revealed
     && !CheckNorth(board,index).flagged){
@@ -305,9 +309,9 @@ function CheckSouthWestForEmpty(board, index){
         emptyCheck = true;
     }
 }
-//############
-//Check For Adjacent Numbers
-//############
+//###################
+//Check For Adjacent Numbers when Flooding
+//###################
 function CheckNorthForNumber(board, index){
     if(CheckNorth(board,index).adjacentMines > 0 && !CheckNorth(board,index).revealed
     && !CheckNorth(board,index).flagged){
@@ -372,7 +376,7 @@ function CheckSouthWestForNumber(board, index){
         CheckSouthWest(board,index).revealed = true;
     }
 }
-
+//Flood Empty
 function FloodEmptySquares(){
     for (let i = 0; i < boardArray.length; i++)
     {
@@ -447,7 +451,7 @@ function FloodEmptySquares(){
         }
     }
 }
-
+//Flood Numbers After Empty
 function FloodNumberSquares(){
     for (let i = 0; i < boardArray.length; i++)
     {
@@ -522,7 +526,9 @@ function FloodNumberSquares(){
         }
     }
 }
-
+//###################
+//Timer Functions
+//###################
 function StartTimer(){
     setInterval(function(){
         if(gameStarted){
@@ -539,7 +545,6 @@ function StartTimer(){
         }
     }, 1000);
 }
-
 function FormatSeconds(){
     if(seconds < 10){
         seconds = "0" + seconds;
@@ -561,7 +566,7 @@ function FormatMinutes(){
     }
     return countMinutes;
 }
-
+//Reset
 function ResetGame(container){
     while(container.lastElementChild){
         container.removeChild(container.lastElementChild);
@@ -576,11 +581,7 @@ function ResetGame(container){
     gameStarted = false;
     seconds = 0;
     minutes = 0;
-    RandomizeMines();
-    CreateBoard();
-    CheckForAdjacentMines();
-    ResetSquareClicks();
-
+    Initialize();
     let message = document.querySelector(".finishMessage");
     message.innerHTML = "&nbsp;";
     timer.firstChild.innerHTML = "00:00";
@@ -590,52 +591,66 @@ gameHeight, gameWidth, boardGrid, boardHeight, boardWidth){
     mines = mineInt;
     height = heightInt;
     width = widthInt;
+    diffuse = mineInt;
     area = height * width;
     gameContainer.style.height = gameHeight;
     gameContainer.style.width = gameWidth;
     boardContainer.style.gridTemplateColumns = boardGrid;
     boardContainer.style.height = boardHeight;
     boardContainer.style.width = boardWidth;
+    diffuser.firstChild.innerHTML = diffuse;
 }
+//###################
 //Click Events
+//###################
+//Switching to Options Screen
 optionButton.onclick = function(){
     optionContainer.style.display = "block";
     gameContainer.style.display = "none";
+    browser.style.minWidth = "405px";
+    let loseMsg = document.querySelector(".finishMessage");
+    loseMsg.innerHTML = "&nbsp;";
 }
 returnButton.onclick = function(){
     if(dropdown.value === "Easy"){
         DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
+        browser.style.minWidth = "405px";
     }
     else if(dropdown.value === "Normal"){
         DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
+        browser.style.minWidth = "685px";
     }
     else if(dropdown.value === "Hard"){
         DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
+        browser.style.minWidth = "1245px";
     }
     gameContainer.style.display = "block";
     optionContainer.style.display = "none";
     ResetGame(boardContainer);
+    console.log(new Date().getMonth()+1+"/"+new Date().getDate()+"/"+new Date().getFullYear());
 }
 dropdown.onchange = function(){
     if(dropdown.value === "Easy"){
-        difficultyInfo.innerHTML = "9x9 Board, 10 Mines";
+        difficultyInfo.innerHTML = `9<span class="x">&times</span>9 Board, 10 Mines`;
     }
     else if(dropdown.value === "Normal"){
-        difficultyInfo.innerHTML = "16x16 Board, 40 Mines";
+        difficultyInfo.innerHTML = `16<span class="x">&times</span>16 Board, 40 Mines`;
     }
     else if(dropdown.value === "Hard"){
-        difficultyInfo.innerHTML = "16x30 Board, 99 Mines";
+        difficultyInfo.innerHTML = `16<span class="x">&times</span>30 Board, 99 Mines</span>`;
     }
 }
-
+//Prevents the Default Right Click Menu from Popping Up
 gameContainer.addEventListener("contextmenu", function (e) {
     e.preventDefault();
 });
+//Reset when ResetButton is Clicked
 document.addEventListener("click", function (event) {
     if(event.target.matches("#resetButton")){
         ResetGame(boardContainer);
     }
 });
+//Listener for Square Events
 function ResetSquareClicks(){
     const squares = document.querySelectorAll(".square");
     squares.forEach(function (event, index) {
@@ -647,13 +662,20 @@ function ResetSquareClicks(){
                     loseMsg.innerHTML = "Too Bad, Try Again!";
                     gameStarted = false;
                     for (let i = 0; i < boardArray.length; i++){
-                        if(boardArray[i].hasMine){
+                        if(boardArray[i].hasMine && !boardArray[i].flagged){
                             let element = document.getElementById(boardArray[i].index);
                             let mines = document.createElement("div")
                             mines.innerHTML = `<div class="hidden">
                             <img id="mine" src=${mineSprite}></div>`;
                             element.removeChild(element.firstChild);
                             element.appendChild(mines);
+                        }
+                        if(boardArray[i].flagged && !boardArray[i].hasMine){
+                            let element = document.getElementById(boardArray[i].index).firstChild;
+                            let wrongDiffuse = document.createElement("div")
+                            wrongDiffuse.setAttribute("id", "diffuse");
+                            wrongDiffuse.innerHTML = `<span>&times</span>`;
+                            element.insertBefore(wrongDiffuse, element.firstChild);
                         }
                     }
                     let element = document.getElementById(boardArray[index].index);
@@ -704,35 +726,39 @@ function ResetSquareClicks(){
                             totalRevealed++;
                         }
                         if(totalRevealed === boardArray.length - mineArray.length){
-                            console.log("You Win!");
                             playerHasWon = true;
                             gameStarted = false;
                             let element = document.querySelector(".finishMessage");
                             element.innerHTML = "Completed in " +
-                            minutes + " min, " + seconds + " secs!"; 
-                            // FormatMinutes() + ":" + FormatSeconds() + "!";
+                            minutes + " mins, " + seconds + " secs!";
                         }
                     }
                 }
             }
-            if(!playerHasLost && !playerHasWon && e.button === 2){
+            //For Flags
+            if(!playerHasLost && !playerHasWon && e.button === 2 && e.button !== 0){
                 if(!boardArray[index].revealed){
-                    if(!boardArray[index].flagged){
+                    if(!boardArray[index].flagged && diffuse > 0){
                         let element = document.getElementById(boardArray[index].index).firstChild;
                         let flag = document.createElement("div")
                         flag.setAttribute("id", "flag");
                         flag.innerHTML = `<img src=${flagSprite}>`;
                         element.appendChild(flag);
                         boardArray[index].flagged = true;
+                        diffuse--;
+                        diffuser.firstChild.innerHTML = diffuse;
                     }
-                    else{
+                    else if(boardArray[index].flagged){
                         let element = document.getElementById(boardArray[index].index).firstChild;
                         element.removeChild(element.firstChild);
                         boardArray[index].flagged = false;
+                        diffuse++;
+                        diffuser.firstChild.innerHTML = diffuse;
                     }
                 }
             }
         });
+        //Highlights Squares while Scrolling
         event.addEventListener("mouseenter", function () {
             if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
                 let element = document.getElementById(boardArray[index].index);

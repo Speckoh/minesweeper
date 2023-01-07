@@ -1,5 +1,5 @@
 /* *{
-    border: 1px solid black;
+    border: 1px solid red;
 } */
 body{
     background-color: rgb(200, 200, 200);
@@ -10,7 +10,10 @@ body{
     grid-template-columns: 1fr;
     justify-content: center;
     align-content: center;
+    min-width: 420px;
+    width: 100%;
     min-height: 100vh;
+    overflow-x: scroll;
 }
 h2, h3{
     text-align: center;
@@ -30,10 +33,10 @@ h3{
     border-radius: 8px;
 }
 .gameContainer{
-    display: none;
+    display: block;
 }
 .optionContainer{
-    display: block;
+    display: none;
 }
 .dropdown{
     display: grid;
@@ -52,6 +55,26 @@ h3{
     font-size: 24px;
     padding: 10px 0;
 }
+.highScores{
+    text-align: center;
+    font-size: 30px;
+    padding: 10px 0;
+}
+.scores{
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    border-collapse: collapse;
+}
+th, td{
+    text-align: center;
+    padding: 0 12px;
+    height: 24px;
+    border: 1px solid rgb(100, 100, 100);
+}
+th{
+    background-color: rgb(200, 200, 200);
+}
 .gridContainer{
     display: grid;
     background-color: whitesmoke;
@@ -61,13 +84,13 @@ h3{
     align-content: center;
     width: 360px;
     height: 360px;
-    margin-top: 26px;
+    margin-top: 18px;
     margin-left: 18px;
     margin-right: auto;
 }
 .controls{
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     justify-content: center;
     align-content: center;
 }
@@ -77,7 +100,7 @@ h3{
     align-content: center;
 }
 .options > button{
-    margin-top: 18px;
+    margin-top: 20px;
     width: 64px;
     height: 64px;
     border-radius: 32px;
@@ -85,52 +108,69 @@ h3{
     border: 0px;
 }
 .options > button > img{
-    margin: 2px 0 0 0;
+    margin: 2px 0 0 1px;
     width: 50px;
     height: 50px;
 }
 .options > button:hover, #returnButton:hover{
-    background-color: rgb(185, 185, 185);
+    background-color: lightgreen;
 }
 .options > button:active, #returnButton:active{
     background-color: rgb(200, 200, 200);
 }
 #returnButton{
-    margin-top: 20px;
+    margin-top: 59px;
     width: 64px;
     height: 64px;
     border-radius: 32px;
     background-color: rgb(200, 200, 200);
     border: 0px;
-    font-size: 40px;
 }
-.timer, .reset{
+#returnButton > img{
+    margin-top: 8px;
+    width: 50px;
+    height: 50px;
+}
+.timer, .diffuser{
     margin: auto;
     margin-top: 24px;
-}
-.timer, .reset > button{
     width: 100px;
     height: 50px;
     border: 0px;
-}
-.timer{
     border-radius: 8px;
     background-color: rgb(100, 100, 100);
 }
-.timer > div{
+.timer > div, .diffuser > div{
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     color: whitesmoke;
     text-align: center;
     font-size: 36px;
     margin-top: 4px;
 }
+.timer{
+    margin-left: 36px;
+}
+.diffuser{
+    margin-right: 36px;
+}
 .reset > button{
-    font-size: 30px;
-    border-radius: 8px;
+    display: grid;
+    margin: auto;
+    margin-top: 16px;
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
     background-color: rgb(200, 200, 200);
+    border: 0px;
+}
+.reset > button > img{
+    margin-left: 1.2px;
+    margin-top: 6px;
+    width: 50px;
+    height: 50px;
 }
 .reset > button:hover{
-    background-color: rgb(185, 185, 185);
+    background-color: lightgreen;
 }
 .reset > button:active{
     background-color: rgb(200, 200, 200);
@@ -173,18 +213,41 @@ h3{
     height: 35px;
     margin: 2px 2px;
 }
+#diffuse{
+    position: absolute;
+    margin: -25px 0 0 -6.5px;
+}
+#diffuse > span{
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 
+    'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 64px;
+    opacity: 0.5;
+    color: red;
+}
 #mines1{
-    color:blue
+    color:blue;
 }
 #mines2{
-    color:green
+    color:green;
 }
 #mines3{
-    color:crimson
+    color:crimson;
 }
 #mines4{
-    color:darkmagenta
+    color:darkmagenta;
 }
 #mines5{
-    color:coral
+    color:coral;
+}
+#mines6{
+    color:slateblue;
+}
+#mines7{
+    color:seagreen;
+}
+#mines8{
+    color:palevioletred;
+}
+.x{
+    font-size: 30px;
 }

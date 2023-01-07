@@ -16,7 +16,10 @@
         <div class="gameContainer">
             <div class="controls">
                 <div class="timer"><div>00:00</div></div>
-                <div class="reset"><button id="resetButton">Reset</button></div>
+                <div class="reset"><button id="resetButton">
+                    <img id="resetButton" src="assets/reset.png" alt="reset">
+                </button></div>
+                <div class="diffuser"><div>10</div></div>
             </div>
             <div class="gridContainer">
                 
@@ -34,8 +37,43 @@
                     <option value="Hard">Hard</option>
                 </select>
             </div>
-            <div class="difficultyInfo">9x9 Board, 10 Mines</div>
-            <div class="return"><button id="returnButton">👍</button></div>
+            <div class="difficultyInfo">9<span class="x">&times</span>9 Board, 10 Mines</div>
+            <div class="highScores">High Scores Easy</div>
+            <table class="scores">
+                <tr>
+                    <th>Rank</th>
+                    <th>Time Completed</th>
+                    <th>Date Achieved</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td id="r1-time"></td>
+                    <td id="r1-date"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td id="r2-time"></td>
+                    <td id="r2-date"></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td id="r3-time"></td>
+                    <td id="r3-date"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td id="r4-time"></td>
+                    <td id="r4-date"></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td id="r5-time"></td>
+                    <td id="r5-date"></td>
+                </tr>
+            </table>
+            <div class="return">
+                <button id="returnButton"><img src="assets/check.png" alt="gear"></button>
+            </div>
         </div>
         <div class="finishMessage">&nbsp;</div>
     </div>

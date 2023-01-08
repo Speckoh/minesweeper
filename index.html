@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" 
     href="https://fonts.gstatic.com" crossorigin><link 
     href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&display=swap" rel="stylesheet">
@@ -16,17 +17,29 @@
         <div class="gameContainer">
             <div class="controls">
                 <div class="timer"><div>00:00</div></div>
-                <div class="reset"><button id="resetButton">
+                <div class="reset">
+                    <button id="resetButton">
                     <img id="resetButton" src="assets/reset.png" alt="reset">
-                </button></div>
+                    </button>
+                </div>
                 <div class="diffuser"><div>10</div></div>
             </div>
             <div class="gridContainer">
                 
             </div>
             <div class="options">
-                <button id="optionButton"><img src="assets/gear.png" alt="gear"></button>
+                <div class="themes">
+                    <button id="themes"><img src="assets/gear.png" alt="theme"></button>
+                </div>
+                <div class="settings">
+                    <button id="settings"><img src="assets/gear.png" alt="gear"></button>
+                </div>
+                <div class="sound">
+                    <div id="disabled"><img src="assets/disabled.png"></div>
+                    <button id="sound"><img src="assets/sound.png" alt="sound"></button>
+                </div>
             </div>
+            
         </div>
         <div class="optionContainer">
             <div class="difficulty"><h3>Select Difficulty</h3></div>

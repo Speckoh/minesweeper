@@ -13,7 +13,7 @@
  - As a user, I want to have a Winning Message when the player opens up all the Squares that does not have a Mine.
  - As a user, After Game Completion, I want all Mines to be Revealed
 
- ![alt Minesweeper MVP](minesweeper_MVP.jpeg)
+ ![alt Minesweeper MVP](assets/minesweeper_MVP.jpeg)
  ---
 ## UPDATES
 
@@ -27,7 +27,7 @@
  - As a user, I want a Button to Reset the Board.
  - As a user, I want the Square to turn Red if player clicks on a Mine.
 
-![alt Minesweeper MVP](minesweeper_V2.jpeg)
+![alt Minesweeper MVP](assets/minesweeper_V2.jpeg)
 
 ### Version 3.0
  - As a user, I want the player to know the amount of mines the board has.

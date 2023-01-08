@@ -1,7 +1,7 @@
 const gameContainer = document.querySelector(".gameContainer");
 const optionContainer = document.querySelector(".optionContainer");
 const boardContainer = document.querySelector(".gridContainer");
-const optionButton = document.getElementById("optionButton");
+const optionButton = document.getElementById("settings");
 const returnButton = document.getElementById("returnButton");
 const dropdown = document.getElementById("dropdown");
 const difficultyInfo = document.querySelector(".difficultyInfo");
@@ -9,9 +9,17 @@ const timer = document.querySelector(".timer");
 const browser = document.querySelector(".browser");
 const diffuser = document.querySelector(".diffuser");
 const scoreElement = document.querySelector(".highScores");
+const disabled = document.getElementById("disabled");
 
 const mineSprite = "assets/mine.png";
 const flagSprite = "assets/flag.png";
+//Music from Mixkit.co
+const clickAudio = new Audio("assets/mixkit-typewriter-soft-click-1125.wav");
+const floodAudio = new Audio("assets/mixkit-video-game-retro-click-237.wav");
+const explosionAudio = new Audio("assets/mixkit-arcade-video-game-explosion-2810.wav");
+const winAudio = new Audio("assets/mixkit-winning-chimes-2015.wav");
+
+soundEffect = false;
 
 let boardArray = [];
 let randomArray = [];
@@ -87,6 +95,17 @@ optionButton.onclick = function(){
         DisplayScores(highScoresHard);
     }
 }
+//Enable/Disable Sound Effects
+disabled.onclick = function(){
+    if(!soundEffect){
+        soundEffect = true;
+        disabled.firstChild.style.opacity = "0";
+    }
+    else{
+        soundEffect = false;
+        disabled.firstChild.style.opacity = ".65";
+    }
+}
 //Switch Back to Game Screen
 returnButton.onclick = function(){
     if(dropdown.value === "Easy"){
@@ -112,21 +131,18 @@ dropdown.onchange = function(){
         scoreElement.innerHTML = "High Scores Easy";
         highScoresEasy = JSON.parse(localStorage.getItem("easy")) || [];
         DisplayScores(highScoresEasy);
-        console.log(highScoresEasy);
     }
     else if(dropdown.value === "Normal"){
         difficultyInfo.innerHTML = `16<span class="x">&times</span>16 Board, 40 Mines`;
         scoreElement.innerHTML = "High Scores Normal";
         highScoresNormal = JSON.parse(localStorage.getItem("normal")) || [];
         DisplayScores(highScoresNormal);
-        console.log(highScoresNormal);
     }
     else if(dropdown.value === "Hard"){
         difficultyInfo.innerHTML = `16<span class="x">&times</span>30 Board, 99 Mines</span>`;
         scoreElement.innerHTML = "High Scores Hard";
         highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
         DisplayScores(highScoresHard);
-        console.log(highScoresHard);
     }
 }
 //Prevents the Default Right Click Menu from Popping Up
@@ -147,8 +163,9 @@ function ResetSquareClicks(){
             if(!playerHasLost && !playerHasWon && !boardArray[index].flagged && e.button === 0){
                 //If Clicked on a Mine
                 if(boardArray[index].hasMine){
+                    PlaySoundEffect(explosionAudio);
                     let loseMsg = document.querySelector(".finishMessage");
-                    loseMsg.innerHTML = "Too Bad, Try Again!";
+                    loseMsg.innerHTML = "You Detonated, Try Again!";
                     gameStarted = false;
                     for (let i = 0; i < boardArray.length; i++){
                         if(boardArray[i].hasMine && !boardArray[i].flagged){
@@ -159,7 +176,7 @@ function ResetSquareClicks(){
                             element.removeChild(element.firstChild);
                             element.appendChild(mines);
                         }
-                        if(boardArray[i].flagged && !boardArray[i].hasMine){
+                        else if(boardArray[i].flagged && !boardArray[i].hasMine){
                             let element = document.getElementById(boardArray[i].index).firstChild;
                             let wrongDiffuse = document.createElement("div")
                             wrongDiffuse.setAttribute("id", "diffuse");
@@ -177,6 +194,7 @@ function ResetSquareClicks(){
                     //If Clicked a Number
                     if(boardArray[index].adjacentMines > 0){
                         gameStarted = true;
+                        PlaySoundEffect(clickAudio);
                         let numberOfMines = document.createElement("div")
                         numberOfMines.classList.add("numberOfMines");
                         numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
@@ -189,6 +207,7 @@ function ResetSquareClicks(){
                     //If Clicked an Empty Square
                     else if(boardArray[index].adjacentMines === 0){
                         gameStarted = true;
+                        PlaySoundEffect(floodAudio);
                         boardArray[index].revealed = true;
                         event.removeChild(event.firstChild);
                         emptyCheck = true;
@@ -219,6 +238,7 @@ function ResetSquareClicks(){
                             totalRevealed++;
                         }
                         if(totalRevealed === boardArray.length - mineArray.length){
+                            PlaySoundEffect(winAudio);
                             playerHasWon = true;
                             gameStarted = false;
                             let element = document.querySelector(".finishMessage");
@@ -278,6 +298,12 @@ function ResetSquareClicks(){
         });
     });
 }
+//Play Sound
+function PlaySoundEffect(audio){
+    if(soundEffect){
+        audio.play();
+    }
+}
 //Adding a HighScore to the ScoreBoard
 function HighScoresByDifficulty(highScores, difficulty){
     highScores.push(new HighScores());
@@ -335,9 +361,7 @@ function SortScores(scoreArr, difficulty){
         localStorage.setItem(difficulty, JSON.stringify(scoreArr));
     }
 }
-//###################
 //Timer Functions
-//###################
 function StartTimer(){
     setInterval(function(){
         if(gameStarted){
@@ -522,11 +546,8 @@ function CheckForAdjacentMines(){
             CheckSouthWestSquare(boardArray, i);
         }
     } 
-
 }
-//###################
 //Returns Values
-//###################
 function CheckNorth(board, index){
     return board[index - width];
 }
@@ -551,9 +572,7 @@ function CheckSouthEast(board, index){
 function CheckSouthWest(board, index){
     return board[(index + width) - 1];
 }
-//###################
 //Initial Check For Mines
-//###################
 function CheckNorthSquare(board, index){
     if(board[index - width].hasMine){
         board[index].adjacentMines++;
@@ -594,146 +613,23 @@ function CheckSouthWestSquare(board, index){
         board[index].adjacentMines++;
     }
 }
-//###################
 //Check For Empty Adjacent Squares when Flooding
-//###################
-function CheckNorthForEmpty(board, index){
-    if(CheckNorth(board,index).adjacentMines === 0 && !CheckNorth(board,index).revealed
-    && !CheckNorth(board,index).flagged){
-        let element = document.getElementById(CheckNorth(board,index).index);
+function CheckForEmpty(direction, board, index){
+    if(direction(board,index).adjacentMines === 0 && !direction(board,index).revealed
+    && !direction(board,index).flagged){
+        let element = document.getElementById(direction(board,index).index);
         element.removeChild(element.firstChild);
-        CheckNorth(board,index).revealed = true;
+        direction(board,index).revealed = true;
         emptyCheck = true;
     }
 }
-function CheckEastForEmpty(board, index){
-    if(CheckEast(board,index).adjacentMines === 0 && !CheckEast(board,index).revealed
-    && !CheckEast(board,index).flagged){
-        let element = document.getElementById(CheckEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckEast(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckSouthForEmpty(board, index){
-    if(CheckSouth(board,index).adjacentMines === 0 && !CheckSouth(board,index).revealed
-    && !CheckSouth(board,index).flagged){
-        let element = document.getElementById(CheckSouth(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouth(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckWestForEmpty(board, index){
-    if(CheckWest(board,index).adjacentMines === 0 && !CheckWest(board,index).revealed
-    && !CheckWest(board,index).flagged){
-        let element = document.getElementById(CheckWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckWest(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckNorthWestForEmpty(board, index){
-    if(CheckNorthWest(board,index).adjacentMines === 0 && !CheckNorthWest(board,index).revealed
-    && !CheckNorthWest(board,index).flagged){
-        let element = document.getElementById(CheckNorthWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckNorthWest(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckNorthEastForEmpty(board, index){
-    if(CheckNorthEast(board,index).adjacentMines === 0 && !CheckNorthEast(board,index).revealed
-    && !CheckNorthEast(board,index).flagged){
-        let element = document.getElementById(CheckNorthEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckNorthEast(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckSouthEastForEmpty(board, index){
-    if(CheckSouthEast(board,index).adjacentMines === 0 && !CheckSouthEast(board,index).revealed
-    && !CheckSouthEast(board,index).flagged){
-        let element = document.getElementById(CheckSouthEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouthEast(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-function CheckSouthWestForEmpty(board, index){
-    if(CheckSouthWest(board,index).adjacentMines === 0 && !CheckSouthWest(board,index).revealed
-    && !CheckSouthWest(board,index).revealed){
-        let element = document.getElementById(CheckSouthWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouthWest(board,index).revealed = true;
-        emptyCheck = true;
-    }
-}
-//###################
 //Check For Adjacent Numbers when Flooding
-//###################
-function CheckNorthForNumber(board, index){
-    if(CheckNorth(board,index).adjacentMines > 0 && !CheckNorth(board,index).revealed
-    && !CheckNorth(board,index).flagged){
-        let element = document.getElementById(CheckNorth(board,index).index);
+function CheckForNumber(direction, board, index){
+    if(direction(board,index).adjacentMines > 0 && !direction(board,index).revealed
+    && !direction(board,index).flagged){
+        let element = document.getElementById(direction(board,index).index);
         element.removeChild(element.firstChild);
-        CheckNorth(board,index).revealed = true;
-    }
-}
-function CheckEastForNumber(board, index){
-    if(CheckEast(board,index).adjacentMines > 0 && !CheckEast(board,index).revealed
-    && !CheckEast(board,index).flagged){
-        let element = document.getElementById(CheckEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckEast(board,index).revealed = true;
-    }
-}
-function CheckSouthForNumber(board, index){
-    if(CheckSouth(board,index).adjacentMines > 0 && !CheckSouth(board,index).revealed
-    && !CheckSouth(board,index).flagged){
-        let element = document.getElementById(CheckSouth(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouth(board,index).revealed = true;
-    }
-}
-function CheckWestForNumber(board, index){
-    if(CheckWest(board,index).adjacentMines > 0 && !CheckWest(board,index).revealed
-    && !CheckWest(board,index).flagged){
-        let element = document.getElementById(CheckWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckWest(board,index).revealed = true;
-    }
-}
-function CheckNorthWestForNumber(board, index){
-    if(CheckNorthWest(board,index).adjacentMines > 0 && !CheckNorthWest(board,index).revealed
-    && !CheckNorthWest(board,index).flagged){
-        let element = document.getElementById(CheckNorthWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckNorthWest(board,index).revealed = true;
-    }
-}
-function CheckNorthEastForNumber(board, index){
-    if(CheckNorthEast(board,index).adjacentMines > 0 && !CheckNorthEast(board,index).revealed
-    && !CheckNorthEast(board,index).flagged){
-        let element = document.getElementById(CheckNorthEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckNorthEast(board,index).revealed = true;
-    }
-}
-function CheckSouthEastForNumber(board, index){
-    if(CheckSouthEast(board,index).adjacentMines > 0 && !CheckSouthEast(board,index).revealed
-    && !CheckSouthEast(board,index).flagged){
-        let element = document.getElementById(CheckSouthEast(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouthEast(board,index).revealed = true;
-    }
-}
-function CheckSouthWestForNumber(board, index){
-    if(CheckSouthWest(board,index).adjacentMines > 0 && !CheckSouthWest(board,index).revealed
-    && !CheckSouthWest(board,index).flagged){
-        let element = document.getElementById(CheckSouthWest(board,index).index);
-        element.removeChild(element.firstChild);
-        CheckSouthWest(board,index).revealed = true;
+        direction(board,index).revealed = true;
     }
 }
 //Flood Empty
@@ -743,70 +639,70 @@ function FloodEmptySquares(){
         if (boardArray[i].revealed && boardArray[i].adjacentMines === 0){
             //Check NorthWest Corner
             if(boardArray[i].index === 0){
-                CheckSouthForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckSouthEastForEmpty(boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckSouthEast, boardArray, i);
             }
             //Check NorthEast Corner
             else if(boardArray[i].index === width - 1) {
-                CheckSouthForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckSouthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckSouthWest, boardArray, i);
             }
             //Check SouthEast Corner
             else if(boardArray[i].index === boardArray.length - 1){
-                CheckNorthForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckNorthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckNorthWest, boardArray, i);
             }
             //Check SouthWest Corner
             else if(boardArray[i].index === boardArray.length - width){
-                CheckNorthForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckNorthEastForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckNorthEast, boardArray, i);
             }
             //Check North Row
             else if(boardArray[i].index < width) {
-                CheckSouthForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckSouthEastForEmpty(boardArray, i);
-                CheckSouthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckSouthEast, boardArray, i);
+                CheckForEmpty(CheckSouthWest, boardArray, i);
             }
             //Check East Column
             else if(boardArray[i].index % width === width - 1) {
-                CheckNorthForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckSouthForEmpty(boardArray, i);
-                CheckNorthWestForEmpty(boardArray, i);
-                CheckSouthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckNorthWest, boardArray, i);
+                CheckForEmpty(CheckSouthWest, boardArray, i);
             }
             //Check South Row
             else if(boardArray[i].index > boardArray.length - width) {
-                CheckNorthForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckNorthEastForEmpty(boardArray, i);
-                CheckNorthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckNorthEast, boardArray, i);
+                CheckForEmpty(CheckNorthWest, boardArray, i);
             }
             //Check West Column
             else if(boardArray[i].index % width === 0) {
-                CheckNorthForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckSouthForEmpty(boardArray, i);
-                CheckNorthEastForEmpty(boardArray, i);
-                CheckSouthEastForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckNorthEast, boardArray, i);
+                CheckForEmpty(CheckSouthEast, boardArray, i);
             }
             //Everything Middle
             else{
-                CheckNorthForEmpty(boardArray, i);
-                CheckSouthForEmpty(boardArray, i);
-                CheckWestForEmpty(boardArray, i);
-                CheckEastForEmpty(boardArray, i);
-                CheckNorthEastForEmpty(boardArray, i);
-                CheckNorthWestForEmpty(boardArray, i);
-                CheckSouthEastForEmpty(boardArray, i);
-                CheckSouthWestForEmpty(boardArray, i);
+                CheckForEmpty(CheckNorth, boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckWest, boardArray, i);
+                CheckForEmpty(CheckEast, boardArray, i);
+                CheckForEmpty(CheckNorthEast, boardArray, i);
+                CheckForEmpty(CheckNorthWest, boardArray, i);
+                CheckForEmpty(CheckSouthEast, boardArray, i);
+                CheckForEmpty(CheckSouthWest, boardArray, i);
             }
         }
     }
@@ -818,70 +714,70 @@ function FloodNumberSquares(){
         if (boardArray[i].revealed && boardArray[i].adjacentMines === 0){
             //Check NorthWest Corner
             if(boardArray[i].index === 0){
-                CheckSouthForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckSouthEastForNumber(boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckSouthEast, boardArray, i);
             }
             //Check NorthEast Corner
             else if(boardArray[i].index === width - 1) {
-                CheckSouthForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckSouthWestForNumber(boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckSouthWest, boardArray, i);
             }
             //Check SouthEast Corner
             else if(boardArray[i].index === boardArray.length - 1){
-                CheckNorthForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckNorthWestForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckNorthWest, boardArray, i);
             }
             //Check SouthWest Corner
             else if(boardArray[i].index === boardArray.length - width){
-                CheckNorthForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckNorthEastForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckNorthEast, boardArray, i);
             }
             //Check North Row
             else if(boardArray[i].index < width) {
-                CheckSouthForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckSouthEastForNumber(boardArray, i);
-                CheckSouthWestForNumber(boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckSouthEast, boardArray, i);
+                CheckForNumber(CheckSouthWest, boardArray, i);
             }
             //Check East Column
             else if(boardArray[i].index % width === width - 1) {
-                CheckNorthForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckSouthForNumber(boardArray, i);
-                CheckNorthWestForNumber(boardArray, i);
-                CheckSouthWestForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckNorthWest, boardArray, i);
+                CheckForNumber(CheckSouthWest, boardArray, i);
             }
             //Check South Row
             else if(boardArray[i].index > boardArray.length - width) {
-                CheckNorthForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckNorthEastForNumber(boardArray, i);
-                CheckNorthWestForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckNorthEast, boardArray, i);
+                CheckForNumber(CheckNorthWest, boardArray, i);
             }
             //Check West Column
             else if(boardArray[i].index % width === 0) {
-                CheckNorthForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckSouthForNumber(boardArray, i);
-                CheckNorthEastForNumber(boardArray, i);
-                CheckSouthEastForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckNorthEast, boardArray, i);
+                CheckForNumber(CheckSouthEast, boardArray, i);
             }
             //Everything Middle
             else{
-                CheckNorthForNumber(boardArray, i);
-                CheckSouthForNumber(boardArray, i);
-                CheckWestForNumber(boardArray, i);
-                CheckEastForNumber(boardArray, i);
-                CheckNorthEastForNumber(boardArray, i);
-                CheckNorthWestForNumber(boardArray, i);
-                CheckSouthEastForNumber(boardArray, i);
-                CheckSouthWestForNumber(boardArray, i);
+                CheckForNumber(CheckNorth, boardArray, i);
+                CheckForNumber(CheckSouth, boardArray, i);
+                CheckForNumber(CheckWest, boardArray, i);
+                CheckForNumber(CheckEast, boardArray, i);
+                CheckForNumber(CheckNorthEast, boardArray, i);
+                CheckForNumber(CheckNorthWest, boardArray, i);
+                CheckForNumber(CheckSouthEast, boardArray, i);
+                CheckForNumber(CheckSouthWest, boardArray, i);
             }
         }
     }

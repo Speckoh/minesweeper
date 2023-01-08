@@ -2,7 +2,7 @@
     border: 0px solid red;
 }
 body{
-    background-color: rgb(200, 200, 200);
+    background-color: rgb(190, 190, 190);
     font-family: 'Kanit', sans-serif;
 }
 .browser{
@@ -11,6 +11,7 @@ body{
     justify-content: center;
     align-content: center;
     min-width: 420px;
+    height: 800px;
     width: 100%;
     min-height: 100vh;
     overflow-x: scroll;
@@ -48,6 +49,7 @@ h3{
     font-family: 'Kanit', sans-serif;
     font-size: 30px;
     width: 180px;
+    border: 1px solid rgb(100, 100, 100);
     border-radius: 6px;
 }
 .difficultyInfo{
@@ -99,27 +101,55 @@ th{
     justify-content: center;
     align-content: center;
 }
-.options > button{
-    margin-top: 20px;
+.options{
+    grid-template-columns: 1fr 1fr 1fr;
+}
+#themes, #settings, #sound{
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    margin: auto;
+    background-color: whitesmoke;
+}
+.themes, .sound{
+    margin-top: 24px;
+}
+.themes{
+    margin-right: 36px;
+    opacity: 0;
+}
+.sound{
+    margin-left: 36px;
+}
+#disabled{
+    position: absolute;
+    margin: 0 0 0 22px;
+}
+#disabled > img{
+    width: 50px;
+    height: 50px;
+    opacity: .65;
+}
+#settings{
+    margin-top: 18px;
     width: 64px;
     height: 64px;
     border-radius: 32px;
     background-color: rgb(200, 200, 200);
     border: 0px;
 }
-.options > button > img{
-    margin: 2px 0 0 1px;
+.options > div > button > img{
     width: 50px;
     height: 50px;
 }
-.options > button:hover, #returnButton:hover{
+#settings:hover, #returnButton:hover{
     background-color: lightgreen;
 }
-.options > button:active, #returnButton:active{
+#settings:active, #returnButton:active{
     background-color: rgb(200, 200, 200);
 }
 #returnButton{
-    margin-top: 63px;
+    margin: 36px auto;
     width: 64px;
     height: 64px;
     border-radius: 32px;

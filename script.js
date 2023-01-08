@@ -8,6 +8,7 @@ const difficultyInfo = document.querySelector(".difficultyInfo");
 const timer = document.querySelector(".timer");
 const browser = document.querySelector(".browser");
 const diffuser = document.querySelector(".diffuser");
+const scoreElement = document.querySelector(".highScores");
 
 const mineSprite = "assets/mine.png";
 const flagSprite = "assets/flag.png";
@@ -22,6 +23,7 @@ let height = 9;
 let width = 9;
 let area = height * width;
 
+let totalSeconds = 0;
 let seconds = 0;
 let minutes = 0;
 
@@ -31,6 +33,19 @@ let totalRevealed = 0;
 let gameStarted = false;
 let playerHasWon = false;
 let playerHasLost = false;
+
+let highScoresEasy = JSON.parse(localStorage.getItem("easy")) || [];
+let highScoresNormal = JSON.parse(localStorage.getItem("normal")) || [];
+let highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
+
+class HighScores{
+    constructor(index, time, date) {
+        this.index = index;
+        this.time = time;
+        this.date = date;
+        this.seconds = seconds;
+    }
+}
 
 class Square {
     constructor(index) {
@@ -50,6 +65,351 @@ function Initialize(){
     CreateBoard();
     CheckForAdjacentMines();
     ResetSquareClicks();
+}
+
+//###################
+//Click Events
+//###################
+//Switching to Options Screen
+optionButton.onclick = function(){
+    optionContainer.style.display = "block";
+    gameContainer.style.display = "none";
+    browser.style.minWidth = "405px";
+    let loseMsg = document.querySelector(".finishMessage");
+    loseMsg.innerHTML = "&nbsp;";
+    if(dropdown.value === "Easy"){
+        DisplayScores(highScoresEasy);
+    }
+    else if(dropdown.value === "Normal"){
+        DisplayScores(highScoresNormal);
+    }
+    else if(dropdown.value === "Hard"){
+        DisplayScores(highScoresHard);
+    }
+}
+//Switch Back to Game Screen
+returnButton.onclick = function(){
+    if(dropdown.value === "Easy"){
+        DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
+        browser.style.minWidth = "405px";
+    }
+    else if(dropdown.value === "Normal"){
+        DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
+        browser.style.minWidth = "685px";
+    }
+    else if(dropdown.value === "Hard"){
+        DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
+        browser.style.minWidth = "1245px";
+    }
+    gameContainer.style.display = "block";
+    optionContainer.style.display = "none";
+    ResetGame(boardContainer);
+}
+//Change Difficulty from Dropdown
+dropdown.onchange = function(){
+    if(dropdown.value === "Easy"){
+        difficultyInfo.innerHTML = `9<span class="x">&times</span>9 Board, 10 Mines`;
+        scoreElement.innerHTML = "High Scores Easy";
+        highScoresEasy = JSON.parse(localStorage.getItem("easy")) || [];
+        DisplayScores(highScoresEasy);
+        console.log(highScoresEasy);
+    }
+    else if(dropdown.value === "Normal"){
+        difficultyInfo.innerHTML = `16<span class="x">&times</span>16 Board, 40 Mines`;
+        scoreElement.innerHTML = "High Scores Normal";
+        highScoresNormal = JSON.parse(localStorage.getItem("normal")) || [];
+        DisplayScores(highScoresNormal);
+        console.log(highScoresNormal);
+    }
+    else if(dropdown.value === "Hard"){
+        difficultyInfo.innerHTML = `16<span class="x">&times</span>30 Board, 99 Mines</span>`;
+        scoreElement.innerHTML = "High Scores Hard";
+        highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
+        DisplayScores(highScoresHard);
+        console.log(highScoresHard);
+    }
+}
+//Prevents the Default Right Click Menu from Popping Up
+gameContainer.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+//Reset when ResetButton is Clicked
+document.addEventListener("click", function (event) {
+    if(event.target.matches("#resetButton")){
+        ResetGame(boardContainer);
+    }
+});
+//Listener for Square Events
+function ResetSquareClicks(){
+    const squares = document.querySelectorAll(".square");
+    squares.forEach(function (event, index) {
+        event.addEventListener("mouseup", function (e) {
+            if(!playerHasLost && !playerHasWon && !boardArray[index].flagged && e.button === 0){
+                //If Clicked on a Mine
+                if(boardArray[index].hasMine){
+                    let loseMsg = document.querySelector(".finishMessage");
+                    loseMsg.innerHTML = "Too Bad, Try Again!";
+                    gameStarted = false;
+                    for (let i = 0; i < boardArray.length; i++){
+                        if(boardArray[i].hasMine && !boardArray[i].flagged){
+                            let element = document.getElementById(boardArray[i].index);
+                            let mines = document.createElement("div")
+                            mines.innerHTML = `<div class="hidden">
+                            <img id="mine" src=${mineSprite}></div>`;
+                            element.removeChild(element.firstChild);
+                            element.appendChild(mines);
+                        }
+                        if(boardArray[i].flagged && !boardArray[i].hasMine){
+                            let element = document.getElementById(boardArray[i].index).firstChild;
+                            let wrongDiffuse = document.createElement("div")
+                            wrongDiffuse.setAttribute("id", "diffuse");
+                            wrongDiffuse.innerHTML = `<span>&times</span>`;
+                            element.insertBefore(wrongDiffuse, element.firstChild);
+                        }
+                    }
+                    let element = document.getElementById(boardArray[index].index);
+                    element.firstElementChild.classList.add("detonate")
+                    element.firstElementChild.innerHTML = `<img id="mine" src=${mineSprite}>`;
+                    playerHasLost = true;
+                }
+                //If Left Clicked
+                else if(!boardArray[index].hasMine && !boardArray[index].revealed){
+                    //If Clicked a Number
+                    if(boardArray[index].adjacentMines > 0){
+                        gameStarted = true;
+                        let numberOfMines = document.createElement("div")
+                        numberOfMines.classList.add("numberOfMines");
+                        numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
+                        event.appendChild(numberOfMines);
+                        numberOfMines.setAttribute("id", `mines${boardArray[index].adjacentMines}`);
+                        boardArray[index].revealed = true;
+                        boardArray[index].flooded = true;
+                        event.removeChild(event.firstChild);
+                    }
+                    //If Clicked an Empty Square
+                    else if(boardArray[index].adjacentMines === 0){
+                        gameStarted = true;
+                        boardArray[index].revealed = true;
+                        event.removeChild(event.firstChild);
+                        emptyCheck = true;
+                        while(emptyCheck){
+                            emptyCheck = false;
+                            FloodEmptySquares();
+                        }
+                        for (let i = 0; i < boardArray.length; i++){
+                            FloodNumberSquares();
+                        }
+                        for (let i = 0; i < boardArray.length; i++){
+                            if(boardArray[i].adjacentMines > 0 && 
+                                boardArray[i].revealed && !boardArray[i].flooded){
+                                let element = document.getElementById(boardArray[i].index);
+                                let numberOfMines = document.createElement("div")
+                                numberOfMines.classList.add("numberOfMines");
+                                numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
+                                element.appendChild(numberOfMines);
+                                numberOfMines.setAttribute("id", `mines${boardArray[i].adjacentMines}`);
+                                boardArray[i].flooded = true;
+                            }
+                        }
+                    }
+                    //After Left Click Events, Check if Player Meets Winning Condition
+                    totalRevealed = 0;
+                    for (let i = 0; i < boardArray.length; i++){
+                        if(!boardArray[i].hasMine && boardArray[i].revealed){
+                            totalRevealed++;
+                        }
+                        if(totalRevealed === boardArray.length - mineArray.length){
+                            playerHasWon = true;
+                            gameStarted = false;
+                            let element = document.querySelector(".finishMessage");
+                            element.innerHTML = "Completed in " +
+                            minutes + " mins, " + seconds + " secs!";
+                        }
+                    }
+                    if(playerHasWon){
+                        if(dropdown.value === "Easy"){
+                            HighScoresByDifficulty(highScoresEasy, "easy");
+                        }
+                        else if(dropdown.value === "Normal"){
+                            HighScoresByDifficulty(highScoresNormal, "normal");
+                        }
+                        else if(dropdown.value === "Hard"){
+                            HighScoresByDifficulty(highScoresHard, "hard");
+                        }
+                    }
+                }
+            }
+            //For Flag Placement
+            if(!playerHasLost && !playerHasWon && e.button === 2 
+                && e.button !== 0 && e.button !== 1){
+                if(!boardArray[index].revealed){
+                    if(!boardArray[index].flagged && diffuse > 0){
+                        let element = document.getElementById(boardArray[index].index).firstChild;
+                        let flag = document.createElement("div")
+                        flag.setAttribute("id", "flag");
+                        flag.innerHTML = `<img src=${flagSprite}>`;
+                        element.appendChild(flag);
+                        boardArray[index].flagged = true;
+                        diffuse--;
+                        diffuser.firstChild.innerHTML = diffuse;
+                    }
+                    else if(boardArray[index].flagged){
+                        let element = document.getElementById(boardArray[index].index).firstChild;
+                        element.removeChild(element.firstChild);
+                        boardArray[index].flagged = false;
+                        diffuse++;
+                        diffuser.firstChild.innerHTML = diffuse;
+                    }
+                }
+            }
+        });
+        //Highlights Squares while Scrolling
+        event.addEventListener("mouseenter", function () {
+            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
+                let element = document.getElementById(boardArray[index].index);
+                element.firstChild.style.backgroundColor = "lightgreen";
+            }
+        });
+        event.addEventListener("mouseleave", function () {
+            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
+                let element = document.getElementById(boardArray[index].index);
+                element.firstChild.style.backgroundColor = "rgb(190, 190, 190)";
+            }
+        });
+    });
+}
+//Adding a HighScore to the ScoreBoard
+function HighScoresByDifficulty(highScores, difficulty){
+    highScores.push(new HighScores());
+    highScores[highScores.length - 1].time = minutes + " mins, " + seconds + " secs";
+    highScores[highScores.length - 1].date = 
+    new Date().getMonth()+1+"/"+new Date().getDate()+"/"+new Date().getFullYear();
+    highScores[highScores.length - 1].seconds = totalSeconds;
+    SortScores(highScores, difficulty);
+    while (highScores.length > 5){
+        highScores.pop();
+    }
+    for (let i = 0; i < highScores.length; i++){
+        highScores[i].index = i;
+        let time = document.getElementById(`r${highScores[i].index + 1}-time`);
+        let date = document.getElementById(`r${highScores[i].index + 1}-date`);
+        time.innerHTML = highScores[i].time;
+        date.innerHTML = highScores[i].date;
+    }
+    localStorage.setItem(difficulty, JSON.stringify(highScores));
+}
+//Display Scores for Each Difficulty When Switching Difficulty
+function DisplayScores(highScores){
+    for (let i = 0; i < 5; i++){
+        let time = document.getElementById(`r${i + 1}-time`);
+        let date = document.getElementById(`r${i + 1}-date`);
+        time.innerHTML = "";
+        date.innerHTML = "";
+    }
+    if(highScores.length > 0){
+        for (let i = 0; i < highScores.length; i++){
+            highScores[i].index = i;
+            let time = document.getElementById(`r${highScores[i].index + 1}-time`);
+            let date = document.getElementById(`r${highScores[i].index + 1}-date`);
+            time.innerHTML = highScores[i].time;
+            date.innerHTML = highScores[i].date;
+        }
+    }
+}
+//Sorting the Scores (Geeksforgeeks.org/bubblesort)
+function BubbleSort(array, n){
+    for (let i = 0; i < n - 1; i++){
+        for(let j = 0; j < n - i - 1; j++){
+            if(array[j].seconds > array[j + 1].seconds){
+                let temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            }
+            array[j].index = j;
+        }
+    }
+}
+function SortScores(scoreArr, difficulty){
+    if(scoreArr.length > 0){
+        BubbleSort(scoreArr, scoreArr.length);
+        localStorage.setItem(difficulty, JSON.stringify(scoreArr));
+    }
+}
+//###################
+//Timer Functions
+//###################
+function StartTimer(){
+    setInterval(function(){
+        if(gameStarted){
+            totalSeconds++;
+            seconds++;
+            if(seconds === 60){
+                minutes++;
+            }
+            if(minutes < 60){
+                timer.firstChild.innerHTML = FormatMinutes() + ":" + FormatSeconds();
+            }
+            else if(minutes >= 60){
+                timer.firstChild.innerHTML = "60:00";
+            }
+        }
+    }, 1000);
+}
+function FormatSeconds(){
+    if(seconds < 10){
+        seconds = "0" + seconds;
+    }
+    if(seconds >= 60){
+        seconds = "00";
+    }
+    return seconds;
+}
+function FormatMinutes(){
+    if(minutes < 10 && minutes > 0){
+        countMinutes = "0" + minutes;
+    }
+    else if(minutes > 10 && minutes < 60){
+        countMinutes = minutes;
+    }
+    else if(minutes === 0){
+        countMinutes = "00";
+    }
+    return countMinutes;
+}
+//Reset
+function ResetGame(container){
+    while(container.lastElementChild){
+        container.removeChild(container.lastElementChild);
+    }
+    boardArray = [];
+    randomArray = [];
+    mineArray = [];
+    totalRevealed = 0;
+    emptyCheck = false;
+    playerHasWon = false;
+    playerHasLost = false;
+    gameStarted = false;
+    totalSeconds = 0;
+    seconds = 0;
+    minutes = 0;
+    Initialize();
+    let message = document.querySelector(".finishMessage");
+    message.innerHTML = "&nbsp;";
+    timer.firstChild.innerHTML = "00:00";
+}
+function DifficultySettings(mineInt, heightInt, widthInt, 
+gameHeight, gameWidth, boardGrid, boardHeight, boardWidth){
+    mines = mineInt;
+    height = heightInt;
+    width = widthInt;
+    diffuse = mineInt;
+    area = height * width;
+    gameContainer.style.height = gameHeight;
+    gameContainer.style.width = gameWidth;
+    boardContainer.style.gridTemplateColumns = boardGrid;
+    boardContainer.style.height = boardHeight;
+    boardContainer.style.width = boardWidth;
+    diffuser.firstChild.innerHTML = diffuse;
 }
 //Mine Randomizer
 function RandomizeMines(){
@@ -525,251 +885,4 @@ function FloodNumberSquares(){
             }
         }
     }
-}
-//###################
-//Timer Functions
-//###################
-function StartTimer(){
-    setInterval(function(){
-        if(gameStarted){
-            seconds++;
-            if(seconds === 60){
-                minutes++;
-            }
-            if(minutes < 60){
-                timer.firstChild.innerHTML = FormatMinutes() + ":" + FormatSeconds();
-            }
-            else if(minutes >= 60){
-                timer.firstChild.innerHTML = "60:00";
-            }
-        }
-    }, 1000);
-}
-function FormatSeconds(){
-    if(seconds < 10){
-        seconds = "0" + seconds;
-    }
-    if(seconds >= 60){
-        seconds = "00";
-    }
-    return seconds;
-}
-function FormatMinutes(){
-    if(minutes < 10 && minutes > 0){
-        countMinutes = "0" + minutes;
-    }
-    else if(minutes > 10 && minutes < 60){
-        countMinutes = minutes;
-    }
-    else if(minutes === 0){
-        countMinutes = "00";
-    }
-    return countMinutes;
-}
-//Reset
-function ResetGame(container){
-    while(container.lastElementChild){
-        container.removeChild(container.lastElementChild);
-    }
-    boardArray = [];
-    randomArray = [];
-    mineArray = [];
-    totalRevealed = 0;
-    emptyCheck = false;
-    playerHasWon = false;
-    playerHasLost = false;
-    gameStarted = false;
-    seconds = 0;
-    minutes = 0;
-    Initialize();
-    let message = document.querySelector(".finishMessage");
-    message.innerHTML = "&nbsp;";
-    timer.firstChild.innerHTML = "00:00";
-}
-function DifficultySettings(mineInt, heightInt, widthInt, 
-gameHeight, gameWidth, boardGrid, boardHeight, boardWidth){
-    mines = mineInt;
-    height = heightInt;
-    width = widthInt;
-    diffuse = mineInt;
-    area = height * width;
-    gameContainer.style.height = gameHeight;
-    gameContainer.style.width = gameWidth;
-    boardContainer.style.gridTemplateColumns = boardGrid;
-    boardContainer.style.height = boardHeight;
-    boardContainer.style.width = boardWidth;
-    diffuser.firstChild.innerHTML = diffuse;
-}
-//###################
-//Click Events
-//###################
-//Switching to Options Screen
-optionButton.onclick = function(){
-    optionContainer.style.display = "block";
-    gameContainer.style.display = "none";
-    browser.style.minWidth = "405px";
-    let loseMsg = document.querySelector(".finishMessage");
-    loseMsg.innerHTML = "&nbsp;";
-}
-returnButton.onclick = function(){
-    if(dropdown.value === "Easy"){
-        DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
-        browser.style.minWidth = "405px";
-    }
-    else if(dropdown.value === "Normal"){
-        DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
-        browser.style.minWidth = "685px";
-    }
-    else if(dropdown.value === "Hard"){
-        DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
-        browser.style.minWidth = "1245px";
-    }
-    gameContainer.style.display = "block";
-    optionContainer.style.display = "none";
-    ResetGame(boardContainer);
-    console.log(new Date().getMonth()+1+"/"+new Date().getDate()+"/"+new Date().getFullYear());
-}
-dropdown.onchange = function(){
-    if(dropdown.value === "Easy"){
-        difficultyInfo.innerHTML = `9<span class="x">&times</span>9 Board, 10 Mines`;
-    }
-    else if(dropdown.value === "Normal"){
-        difficultyInfo.innerHTML = `16<span class="x">&times</span>16 Board, 40 Mines`;
-    }
-    else if(dropdown.value === "Hard"){
-        difficultyInfo.innerHTML = `16<span class="x">&times</span>30 Board, 99 Mines</span>`;
-    }
-}
-//Prevents the Default Right Click Menu from Popping Up
-gameContainer.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-//Reset when ResetButton is Clicked
-document.addEventListener("click", function (event) {
-    if(event.target.matches("#resetButton")){
-        ResetGame(boardContainer);
-    }
-});
-//Listener for Square Events
-function ResetSquareClicks(){
-    const squares = document.querySelectorAll(".square");
-    squares.forEach(function (event, index) {
-        event.addEventListener("mouseup", function (e) {
-            if(!playerHasLost && !playerHasWon && !boardArray[index].flagged
-                && e.button === 0){
-                if(boardArray[index].hasMine){
-                    let loseMsg = document.querySelector(".finishMessage");
-                    loseMsg.innerHTML = "Too Bad, Try Again!";
-                    gameStarted = false;
-                    for (let i = 0; i < boardArray.length; i++){
-                        if(boardArray[i].hasMine && !boardArray[i].flagged){
-                            let element = document.getElementById(boardArray[i].index);
-                            let mines = document.createElement("div")
-                            mines.innerHTML = `<div class="hidden">
-                            <img id="mine" src=${mineSprite}></div>`;
-                            element.removeChild(element.firstChild);
-                            element.appendChild(mines);
-                        }
-                        if(boardArray[i].flagged && !boardArray[i].hasMine){
-                            let element = document.getElementById(boardArray[i].index).firstChild;
-                            let wrongDiffuse = document.createElement("div")
-                            wrongDiffuse.setAttribute("id", "diffuse");
-                            wrongDiffuse.innerHTML = `<span>&times</span>`;
-                            element.insertBefore(wrongDiffuse, element.firstChild);
-                        }
-                    }
-                    let element = document.getElementById(boardArray[index].index);
-                    element.firstElementChild.classList.add("detonate")
-                    element.firstElementChild.innerHTML = `<img id="mine" src=${mineSprite}>`;
-                    playerHasLost = true;
-                }
-                else if(!boardArray[index].hasMine && !boardArray[index].revealed){
-                    if(boardArray[index].adjacentMines > 0){
-                        gameStarted = true;
-                        let numberOfMines = document.createElement("div")
-                        numberOfMines.classList.add("numberOfMines");
-                        numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
-                        event.appendChild(numberOfMines);
-                        numberOfMines.setAttribute("id", `mines${boardArray[index].adjacentMines}`);
-                        boardArray[index].revealed = true;
-                        boardArray[index].flooded = true;
-                        event.removeChild(event.firstChild);
-                    }
-                    else if(boardArray[index].adjacentMines === 0){
-                        gameStarted = true;
-                        boardArray[index].revealed = true;
-                        event.removeChild(event.firstChild);
-                        emptyCheck = true;
-                        while(emptyCheck){
-                            emptyCheck = false;
-                            FloodEmptySquares();
-                        }
-                        for (let i = 0; i < boardArray.length; i++){
-                            FloodNumberSquares();
-                        }
-                        for (let i = 0; i < boardArray.length; i++){
-                            if(boardArray[i].adjacentMines > 0 && 
-                                boardArray[i].revealed && !boardArray[i].flooded){
-                                let element = document.getElementById(boardArray[i].index);
-                                let numberOfMines = document.createElement("div")
-                                numberOfMines.classList.add("numberOfMines");
-                                numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
-                                element.appendChild(numberOfMines);
-                                numberOfMines.setAttribute("id", `mines${boardArray[i].adjacentMines}`);
-                                boardArray[i].flooded = true;
-                            }
-                        }
-                    }
-                    totalRevealed = 0;
-                    for (let i = 0; i < boardArray.length; i++){
-                        if(!boardArray[i].hasMine && boardArray[i].revealed){
-                            totalRevealed++;
-                        }
-                        if(totalRevealed === boardArray.length - mineArray.length){
-                            playerHasWon = true;
-                            gameStarted = false;
-                            let element = document.querySelector(".finishMessage");
-                            element.innerHTML = "Completed in " +
-                            minutes + " mins, " + seconds + " secs!";
-                        }
-                    }
-                }
-            }
-            //For Flags
-            if(!playerHasLost && !playerHasWon && e.button === 2 && e.button !== 0){
-                if(!boardArray[index].revealed){
-                    if(!boardArray[index].flagged && diffuse > 0){
-                        let element = document.getElementById(boardArray[index].index).firstChild;
-                        let flag = document.createElement("div")
-                        flag.setAttribute("id", "flag");
-                        flag.innerHTML = `<img src=${flagSprite}>`;
-                        element.appendChild(flag);
-                        boardArray[index].flagged = true;
-                        diffuse--;
-                        diffuser.firstChild.innerHTML = diffuse;
-                    }
-                    else if(boardArray[index].flagged){
-                        let element = document.getElementById(boardArray[index].index).firstChild;
-                        element.removeChild(element.firstChild);
-                        boardArray[index].flagged = false;
-                        diffuse++;
-                        diffuser.firstChild.innerHTML = diffuse;
-                    }
-                }
-            }
-        });
-        //Highlights Squares while Scrolling
-        event.addEventListener("mouseenter", function () {
-            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
-                let element = document.getElementById(boardArray[index].index);
-                element.firstChild.style.backgroundColor = "lightgreen";
-            }
-        });
-        event.addEventListener("mouseleave", function () {
-            if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
-                let element = document.getElementById(boardArray[index].index);
-                element.firstChild.style.backgroundColor = "rgb(190, 190, 190)";
-            }
-        });
-    });
 }

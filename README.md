@@ -1,4 +1,4 @@
-# Minesweeper
+# Minesweeper v3.5
  
  Minesweeper is a puzzle game where you open tiles on a board and use the numbers as hints as to where the mines are. The main Objective is to clear the Board without detonating any of these mines. Good Luck!
 
@@ -33,4 +33,3 @@
 ### Version 5
  - As a user, I want a feature that allows the player to mark a square with a Question Mark.
  - As a user, I want a Simple How to Play Read me Tutorial.
----

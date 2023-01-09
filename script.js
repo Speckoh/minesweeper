@@ -1,8 +1,15 @@
 const gameContainer = document.querySelector(".gameContainer");
 const optionContainer = document.querySelector(".optionContainer");
 const boardContainer = document.querySelector(".gridContainer");
+const themesContainer = document.querySelector(".themesContainer");
+
 const optionButton = document.getElementById("settings");
-const returnButton = document.getElementById("returnButton");
+const themesButton = document.getElementById("themes");
+const themeSelect = document.querySelectorAll(".themeStyle");
+const mineSelect = document.querySelectorAll(".mineStyle");
+const flagSelect = document.querySelectorAll(".flagStyle");
+const returnButton = document.querySelectorAll(".returnButton");
+
 const dropdown = document.getElementById("dropdown");
 const difficultyInfo = document.querySelector(".difficultyInfo");
 const timer = document.querySelector(".timer");
@@ -11,8 +18,6 @@ const diffuser = document.querySelector(".diffuser");
 const scoreElement = document.querySelector(".highScores");
 const disabled = document.getElementById("disabled");
 
-const mineSprite = "assets/mine.png";
-const flagSprite = "assets/flag.png";
 //Music from Mixkit.co
 const clickAudio = new Audio("assets/mixkit-typewriter-soft-click-1125.wav");
 const floodAudio = new Audio("assets/mixkit-video-game-retro-click-237.wav");
@@ -20,6 +25,9 @@ const explosionAudio = new Audio("assets/mixkit-arcade-video-game-explosion-2810
 const winAudio = new Audio("assets/mixkit-winning-chimes-2015.wav");
 
 soundEffect = false;
+
+const mineSprites = ["assets/mine.png", "assets/skull.png"];
+const flagSprites = ["assets/flag.png", "assets/caution.png"];
 
 let boardArray = [];
 let randomArray = [];
@@ -46,14 +54,9 @@ let highScoresEasy = JSON.parse(localStorage.getItem("easy")) || [];
 let highScoresNormal = JSON.parse(localStorage.getItem("normal")) || [];
 let highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
 
-class HighScores{
-    constructor(index, time, date) {
-        this.index = index;
-        this.time = time;
-        this.date = date;
-        this.seconds = seconds;
-    }
-}
+let themeStyleArray = [];
+let mineStyleArray = [];
+let flagStyleArray = [];
 
 class Square {
     constructor(index) {
@@ -65,7 +68,21 @@ class Square {
         this.flagged = false;
     }
 }
-
+class HighScores{
+    constructor(index, time, date) {
+        this.index = index;
+        this.time = time;
+        this.date = date;
+        this.seconds = seconds;
+    }
+}
+class Themes{
+    constructor(index, sprite) {
+        this.index = index;
+        this.selected = false;
+        this.sprite = sprite;
+    }
+}
 Initialize();
 StartTimer();
 function Initialize(){
@@ -73,18 +90,15 @@ function Initialize(){
     CreateBoard();
     CheckForAdjacentMines();
     ResetSquareClicks();
+    SetThemeSelector();
 }
 
 //###################
 //Click Events
 //###################
 //Switching to Options Screen
-optionButton.onclick = function(){
-    optionContainer.style.display = "block";
-    gameContainer.style.display = "none";
-    browser.style.minWidth = "405px";
-    let loseMsg = document.querySelector(".finishMessage");
-    loseMsg.innerHTML = "&nbsp;";
+optionButton.addEventListener("click", function (){
+    SwitchScreen(optionContainer);
     if(dropdown.value === "Easy"){
         DisplayScores(highScoresEasy);
     }
@@ -94,9 +108,49 @@ optionButton.onclick = function(){
     else if(dropdown.value === "Hard"){
         DisplayScores(highScoresHard);
     }
+})
+//Switching to Themes Screen
+themesButton.addEventListener("click", function (){
+    SwitchScreen(themesContainer);
+})
+function SwitchScreen(container){
+    container.style.display = "block";
+    gameContainer.style.display = "none";
+    browser.style.minWidth = "405px";
+    let loseMsg = document.querySelector(".finishMessage");
+    loseMsg.innerHTML = "&nbsp;";
+}
+//Select Themes
+SelectStyle(themeSelect, themeStyleArray, "themeStyle");
+SelectStyle(mineSelect, mineStyleArray, "mineStyle");
+SelectStyle(flagSelect, flagStyleArray, "flagStyle");
+function SelectStyle(select, array, styleString){
+    select.forEach(function (element, index){
+        element.addEventListener("click", function () {
+            for (let i = 0; i < array.length; i++){
+                array[i].selected = false;
+            }
+            array[index].selected = true;
+            for (let i = 0; i < array.length; i++){
+                if(array[i].selected){
+                    document.getElementById(`${styleString}${array[i].index + 1}`).parentElement.style.backgroundColor = "skyblue";
+                }
+                else if(!array[i].selected){
+                    document.getElementById(`${styleString}${array[i].index + 1}`).parentElement.style.backgroundColor = "transparent";
+                }
+            }
+        })
+    });
+}
+function SelectedIcon(array){
+    for (let i = 0; i < array.length; i++){
+        if(array[i].selected){
+            return array[i].sprite;
+        }
+    }
 }
 //Enable/Disable Sound Effects
-disabled.onclick = function(){
+disabled.addEventListener("click", function (){
     if(!soundEffect){
         soundEffect = true;
         disabled.firstChild.style.opacity = "0";
@@ -105,27 +159,30 @@ disabled.onclick = function(){
         soundEffect = false;
         disabled.firstChild.style.opacity = ".65";
     }
-}
+})
 //Switch Back to Game Screen
-returnButton.onclick = function(){
-    if(dropdown.value === "Easy"){
-        DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
-        browser.style.minWidth = "405px";
-    }
-    else if(dropdown.value === "Normal"){
-        DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
-        browser.style.minWidth = "685px";
-    }
-    else if(dropdown.value === "Hard"){
-        DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
-        browser.style.minWidth = "1245px";
-    }
-    gameContainer.style.display = "block";
-    optionContainer.style.display = "none";
-    ResetGame(boardContainer);
-}
+returnButton.forEach(function (element){
+    element.addEventListener("click", function () {
+        if(dropdown.value === "Easy"){
+            DifficultySettings(10, 9, 9, "560px", "400px", "repeat(9, 40px)", "360px", "360px");
+            browser.style.minWidth = "405px";
+        }
+        else if(dropdown.value === "Normal"){
+            DifficultySettings(40, 16, 16, "840px", "680px", "repeat(16, 40px)", "640px", "640px");
+            browser.style.minWidth = "685px";
+        }
+        else if(dropdown.value === "Hard"){
+            DifficultySettings(99, 16, 30, "840px", "1240px", "repeat(30, 40px)", "640px", "1200px");
+            browser.style.minWidth = "1245px";
+        }
+        gameContainer.style.display = "block";
+        optionContainer.style.display = "none";
+        themesContainer.style.display = "none";
+        ResetGame(boardContainer);
+    })
+});
 //Change Difficulty from Dropdown
-dropdown.onchange = function(){
+dropdown.addEventListener("change", function (){
     if(dropdown.value === "Easy"){
         difficultyInfo.innerHTML = `9<span class="x">&times</span>9 Board, 10 Mines`;
         scoreElement.innerHTML = "High Scores Easy";
@@ -144,11 +201,16 @@ dropdown.onchange = function(){
         highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
         DisplayScores(highScoresHard);
     }
-}
+})
 //Prevents the Default Right Click Menu from Popping Up
-gameContainer.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
+function PreventContextMenu(container){
+    container.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+    });
+}
+PreventContextMenu(gameContainer);
+PreventContextMenu(optionContainer);
+PreventContextMenu(themesContainer);
 //Reset when ResetButton is Clicked
 document.addEventListener("click", function (event) {
     if(event.target.matches("#resetButton")){
@@ -170,23 +232,23 @@ function ResetSquareClicks(){
                     for (let i = 0; i < boardArray.length; i++){
                         if(boardArray[i].hasMine && !boardArray[i].flagged){
                             let element = document.getElementById(boardArray[i].index);
-                            let mines = document.createElement("div")
+                            let mines = document.createElement("div");
                             mines.innerHTML = `<div class="hidden">
-                            <img id="mine" src=${mineSprite}></div>`;
+                            <img id="mine" src=${SelectedIcon(mineStyleArray)}></div>`;
                             element.removeChild(element.firstChild);
                             element.appendChild(mines);
                         }
                         else if(boardArray[i].flagged && !boardArray[i].hasMine){
                             let element = document.getElementById(boardArray[i].index).firstChild;
-                            let wrongDiffuse = document.createElement("div")
+                            let wrongDiffuse = document.createElement("div");
                             wrongDiffuse.setAttribute("id", "diffuse");
                             wrongDiffuse.innerHTML = `<span>&times</span>`;
                             element.insertBefore(wrongDiffuse, element.firstChild);
                         }
                     }
                     let element = document.getElementById(boardArray[index].index);
-                    element.firstElementChild.classList.add("detonate")
-                    element.firstElementChild.innerHTML = `<img id="mine" src=${mineSprite}>`;
+                    element.firstElementChild.classList.add("detonate");
+                    element.firstElementChild.innerHTML = `<img id="mine" src=${SelectedIcon(mineStyleArray)}>`;
                     playerHasLost = true;
                 }
                 //If Left Clicked
@@ -195,7 +257,7 @@ function ResetSquareClicks(){
                     if(boardArray[index].adjacentMines > 0){
                         gameStarted = true;
                         PlaySoundEffect(clickAudio);
-                        let numberOfMines = document.createElement("div")
+                        let numberOfMines = document.createElement("div");
                         numberOfMines.classList.add("numberOfMines");
                         numberOfMines.innerHTML = `${boardArray[index].adjacentMines}`;
                         event.appendChild(numberOfMines);
@@ -222,7 +284,7 @@ function ResetSquareClicks(){
                             if(boardArray[i].adjacentMines > 0 && 
                                 boardArray[i].revealed && !boardArray[i].flooded){
                                 let element = document.getElementById(boardArray[i].index);
-                                let numberOfMines = document.createElement("div")
+                                let numberOfMines = document.createElement("div");
                                 numberOfMines.classList.add("numberOfMines");
                                 numberOfMines.innerHTML = `${boardArray[i].adjacentMines}`;
                                 element.appendChild(numberOfMines);
@@ -267,7 +329,7 @@ function ResetSquareClicks(){
                         let element = document.getElementById(boardArray[index].index).firstChild;
                         let flag = document.createElement("div")
                         flag.setAttribute("id", "flag");
-                        flag.innerHTML = `<img src=${flagSprite}>`;
+                        flag.innerHTML = `<img src=${SelectedIcon(flagStyleArray)}>`;
                         element.appendChild(flag);
                         boardArray[index].flagged = true;
                         diffuse--;
@@ -287,7 +349,7 @@ function ResetSquareClicks(){
         event.addEventListener("mouseenter", function () {
             if(!boardArray[index].revealed && !playerHasLost && !playerHasWon){
                 let element = document.getElementById(boardArray[index].index);
-                element.firstChild.style.backgroundColor = "lightgreen";
+                element.firstChild.style.backgroundColor = "skyblue";
             }
         });
         event.addEventListener("mouseleave", function () {
@@ -297,6 +359,38 @@ function ResetSquareClicks(){
             }
         });
     });
+}
+//Themes
+function SetThemeSelector(){
+    AddThemes(themeSelect, themeStyleArray);
+    for(let i = 0; i < themeStyleArray.length; i++){
+        if(!themeStyleArray[i].selected){
+            document.getElementById(`themeStyle${themeStyleArray[i].index + 1}`).parentElement.style.backgroundColor = "transparent";
+        }
+    }
+    AddThemes(mineSelect, mineStyleArray);
+    SetupSprites(mineStyleArray, mineSprites, "mineStyle");
+    AddThemes(flagSelect, flagStyleArray);
+    SetupSprites(flagStyleArray, flagSprites, "flagStyle");
+}
+function AddThemes(select, array){
+    if(array.length === 0){
+        select.forEach(function (element, index){
+            array.push(new Themes);
+            array[0].selected = true;
+            array[index].index = index;
+        });
+    }
+}
+function SetupSprites(array, sprites, styleString){
+    for(let i = 0; i < sprites.length; i++){
+        array[i].sprite = sprites[i];
+        let element = document.getElementById(`${styleString}${array[i].index + 1}`);
+        element.innerHTML = `<img src=${sprites[i]}>`;
+        if(!array[i].selected){
+            document.getElementById(`${styleString}${array[i].index + 1}`).parentElement.style.backgroundColor = "transparent";
+        }
+    }
 }
 //Play Sound
 function PlaySoundEffect(audio){

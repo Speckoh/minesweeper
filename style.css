@@ -14,7 +14,6 @@ body{
     height: 800px;
     width: 100%;
     min-height: 100vh;
-    overflow-x: scroll;
 }
 h2, h3{
     text-align: center;
@@ -24,7 +23,7 @@ h2, h3{
 h3{
     font-size: 30px;
 }
-.gameContainer, .optionContainer{
+.gameContainer, .optionContainer, .themesContainer{
     position: relative;
     height: 560px;
     width: 400px;
@@ -37,6 +36,9 @@ h3{
     display: block;
 }
 .optionContainer{
+    display: none;
+}
+.themesContainer{
     display: none;
 }
 .dropdown{
@@ -116,7 +118,64 @@ th{
 }
 .themes{
     margin-right: 36px;
-    opacity: 0;
+    opacity: 1;
+}
+.themesContainer > div > h3{
+    margin: 12px 0 0 0;
+}
+.themeGrid, .mineGrid, .flagGrid{
+    display: grid;
+    grid-auto-rows: 50px;
+    justify-content: center;
+    align-content: center;
+    grid-gap: 8px;
+}
+.selected{
+    margin: auto;
+    background-color: skyblue;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+}
+.themeGrid, .mineGrid, .flagGrid{
+    padding: 8px 0;
+    background-color:  rgb(160, 160, 160);
+}
+.themeGrid{
+    grid-template-columns: repeat(1, 50px);
+}
+.mineGrid{
+    grid-template-columns: repeat(2, 50px);
+}
+.flagGrid{
+    grid-template-columns: repeat(2, 50px);
+}
+.themeStyle, .mineStyle, .flagStyle{
+    margin: auto;
+    margin-top: 3px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+}
+.mineStyle, .flagStyle{
+    background-color: whitesmoke;
+    border: 2px solid rgb(100, 100, 100);
+}
+.themeStyle > img, .mineStyle > img, .flagStyle > img{
+    width: 35px;
+    height: 35px;
+    margin: 2px 0 0 2.5px;
+}
+#themeStyle1{
+    background-color: rgb(200, 200, 200);
+    border: 2px solid rgb(100, 100, 100);
+}
+#themeStyle2{
+    background-color: rgb(80, 80, 80);
+    border: 2px solid rgb(40, 40, 40);
+}
+.changeTheme{
+    margin-top: 48px;
 }
 .sound{
     margin-left: 36px;
@@ -145,13 +204,13 @@ th{
     width: 50px;
     height: 50px;
 }
-#settings:hover, #returnButton:hover{
-    background-color: lightgreen;
+#settings:hover, .returnButton:hover{
+    background-color: skyblue;
 }
-#settings:active, #returnButton:active{
+#settings:active, .returnButton:active{
     background-color: rgb(200, 200, 200);
 }
-#returnButton{
+.returnButton{
     margin: 36px auto;
     width: 64px;
     height: 64px;
@@ -159,7 +218,7 @@ th{
     background-color: rgb(200, 200, 200);
     border: 0px;
 }
-#returnButton > img{
+.returnButton > img{
     margin-top: 8px;
     width: 50px;
     height: 50px;
@@ -203,7 +262,7 @@ th{
     height: 50px;
 }
 .reset > button:hover{
-    background-color: lightgreen;
+    background-color: skyblue;
 }
 .reset > button:active{
     background-color: rgb(200, 200, 200);

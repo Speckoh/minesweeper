@@ -14,7 +14,7 @@
  
 ## Website
  ---
- This game is available at: [https://speckoh.github.io/minesweeper/]()
+ This game is available at: [https://speckoh.github.io/minesweeper/](https://speckoh.github.io/minesweeper/)
 
 ## How to Play
  ---

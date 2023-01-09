@@ -11,6 +11,7 @@
  - JavaScript
  - HTML
  - CSS
+ - Photoshop
  
 ## Website
  ---

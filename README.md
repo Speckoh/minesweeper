@@ -30,7 +30,7 @@
  - As a user, I want to have a selection of different Color Themes to choose from.
  - As a user, I want to be able to customize the Size of the Board as well as the amount of Mines.
  - As a user, I want a number of Lifelines per difficulty. These Lifelines will randomly mark a location of a mine on the board.
- - As a user, I want these Lifelines to increment the time and each usage will of them will increment the time Exponentially.
+ - As a user, I want these Lifelines to increment the time and each usage of them will increment the time Exponentially.
 
 ### Version 5
  - As a user, I want a feature that allows the player to mark a square with a Question Mark.

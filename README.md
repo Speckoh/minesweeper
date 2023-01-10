@@ -1,4 +1,4 @@
-# Minesweeper v3.5
+# Minesweeper v2.5
  
  Minesweeper is a puzzle game where you open tiles on a board and use the numbers as hints, as to where the mines are located. The main Objective is to clear the Board without detonating any of mines. Good Luck!
 
@@ -12,7 +12,7 @@
  - HTML
  - CSS
  - Photoshop
- 
+
 ## Website
  ---
  This game is available at: [https://speckoh.github.io/minesweeper/](https://speckoh.github.io/minesweeper/)
@@ -27,12 +27,12 @@
 
 ## Future Updates 
  ---
-### Version 4
+### Version 3
  - As a user, I want to have a selection of different Color Themes to choose from.
  - As a user, I want to be able to customize the Size of the Board as well as the amount of Mines.
- - As a user, I want a number of Lifelines per difficulty. These Lifelines will randomly mark a location of a mine on the board.
- - As a user, I want these Lifelines to increment the time and each usage of them will increment the time Exponentially.
-
-### Version 5
  - As a user, I want a feature that allows the player to mark a square with a Question Mark.
  - As a user, I want a Simple How to Play Read me Tutorial.
+
+### Version 4
+ - As a user, I want a number of Lifelines per difficulty. These Lifelines will randomly mark a location of a mine on the board.
+ - As a user, I want these Lifelines to increment the time and each usage of them will increment the time Exponentially.

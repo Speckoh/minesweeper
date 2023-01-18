@@ -29,7 +29,7 @@ soundEffect = false;
 const mineSprites = ["assets/mine.png", "assets/skull.png"];
 const flagSprites = ["assets/flag.png", "assets/caution.png"];
 
-let boardArray = [];
+let boardArray = []; // arrays and other reference types should be declared with const, unless we want to be able to set them to null ( which doesn't seem to be the case here )
 let randomArray = [];
 let mineArray = [];
 let mines = 10;
@@ -54,7 +54,7 @@ let highScoresEasy = JSON.parse(localStorage.getItem("easy")) || [];
 let highScoresNormal = JSON.parse(localStorage.getItem("normal")) || [];
 let highScoresHard = JSON.parse(localStorage.getItem("hard")) || [];
 
-let themeStyleArray = [];
+let themeStyleArray = []; // see line 32 comment on reference types
 let mineStyleArray = [];
 let flagStyleArray = [];
 
@@ -97,7 +97,7 @@ function Initialize(){
 //Click Events
 //###################
 //Switching to Options Screen
-optionButton.addEventListener("click", function (){
+optionButton.addEventListener("click", function (){ // should we be adding event to the dom before we write our functions ? nope
     SwitchScreen(optionContainer);
     if(dropdown.value === "Easy"){
         DisplayScores(highScoresEasy);
@@ -110,7 +110,7 @@ optionButton.addEventListener("click", function (){
     }
 })
 //Switching to Themes Screen
-themesButton.addEventListener("click", function (){
+themesButton.addEventListener("click", function (){ 
     SwitchScreen(themesContainer);
 })
 function SwitchScreen(container){
@@ -218,10 +218,10 @@ document.addEventListener("click", function (event) {
     }
 });
 //Listener for Square Events
-function ResetSquareClicks(){
+function ResetSquareClicks(){ // this is not a good function name here
     const squares = document.querySelectorAll(".square");
     squares.forEach(function (event, index) {
-        event.addEventListener("mouseup", function (e) {
+        event.addEventListener("mouseup", function (e) { // use an arrow function instead of anonymous function declaration 
             if(!playerHasLost && !playerHasWon && !boardArray[index].flagged && e.button === 0){
                 //If Clicked on a Mine
                 if(boardArray[index].hasMine){
@@ -231,7 +231,7 @@ function ResetSquareClicks(){
                     gameStarted = false;
                     for (let i = 0; i < boardArray.length; i++){
                         if(boardArray[i].hasMine && !boardArray[i].flagged){
-                            let element = document.getElementById(boardArray[i].index);
+                            let element = document.getElementById(boardArray[i].index); // this is 6 levels of indentation in - might think about making this jumbo function smaller by refactoring this code into more functions that we then call 
                             let mines = document.createElement("div");
                             mines.innerHTML = `<div class="hidden">
                             <img id="mine" src=${SelectedIcon(mineStyleArray)}></div>`;
@@ -360,7 +360,7 @@ function ResetSquareClicks(){
         });
     });
 }
-//Themes
+//Themes - consider putting all theme related JS in another file 
 function SetThemeSelector(){
     AddThemes(themeSelect, themeStyleArray);
     for(let i = 0; i < themeStyleArray.length; i++){
@@ -438,16 +438,17 @@ function DisplayScores(highScores){
 }
 //Sorting the Scores (Geeksforgeeks.org/bubblesort)
 function BubbleSort(array, n){
-    for (let i = 0; i < n - 1; i++){
-        for(let j = 0; j < n - i - 1; j++){
-            if(array[j].seconds > array[j + 1].seconds){
-                let temp = array[j];
-                array[j] = array[j + 1];
-                array[j + 1] = temp;
-            }
-            array[j].index = j;
-        }
-    }
+	// nice! We'll talk about this in unit 4 ! also ysk JS has a built in sort for arrays for the future that may make these instances easier: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort 
+	for (let i = 0; i < n - 1; i++) {
+		for (let j = 0; j < n - i - 1; j++) {
+			if (array[j].seconds > array[j + 1].seconds) {
+				let temp = array[j]
+				array[j] = array[j + 1]
+				array[j + 1] = temp
+			}
+			array[j].index = j
+		}
+	}
 }
 function SortScores(scoreArr, difficulty){
     if(scoreArr.length > 0){
@@ -474,13 +475,14 @@ function StartTimer(){
     }, 1000);
 }
 function FormatSeconds(){
-    if(seconds < 10){
-        seconds = "0" + seconds;
-    }
-    if(seconds >= 60){
-        seconds = "00";
-    }
-    return seconds;
+	// modulo operator may be helpful here https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
+	if (seconds < 10) {
+		seconds = '0' + seconds
+	}
+	if (seconds >= 60) {
+		seconds = '00'
+	}
+	return seconds
 }
 function FormatMinutes(){
     if(minutes < 10 && minutes > 0){
@@ -571,7 +573,7 @@ function CreateBoard(){
     diffuser.firstChild.innerHTML = diffuse;
 }
 //Check for Adjacent Mines When Initializing and assigning adjacentMine Value
-function CheckForAdjacentMines(){
+function CheckForAdjacentMines(){ // ~70 lines for if else blocks - stop, it's function time 
     for (let i = 0; i < area; i++){
         if(boardArray[i].index === 0){
             CheckSouthSquare(boardArray, i);
@@ -642,7 +644,7 @@ function CheckForAdjacentMines(){
     } 
 }
 //Returns Values
-function CheckNorth(board, index){
+function CheckNorth(board, index){ // why not call these get<direction> ie getNorth ( don't capitalize functions)
     return board[index - width];
 }
 function CheckEast(board, index){
@@ -668,11 +670,11 @@ function CheckSouthWest(board, index){
 }
 //Initial Check For Mines
 function CheckNorthSquare(board, index){
-    if(board[index - width].hasMine){
+    if(board[index - width].hasMine){ // why not use the return value functions you just wrote ?
         board[index].adjacentMines++;
     }
 }
-function CheckEastSquare(board, index){
+function CheckEastSquare(board, index){ // why not add another param instead of writing the function 8 times to take in the direction / getter function above that corresponds to the direction?
     if(board[index + 1].hasMine){
         board[index].adjacentMines++;
     }
@@ -707,7 +709,7 @@ function CheckSouthWestSquare(board, index){
         board[index].adjacentMines++;
     }
 }
-//Check For Empty Adjacent Squares when Flooding
+//Check For Empty Adjacent Squares when Flooding // flooding in context ?
 function CheckForEmpty(direction, board, index){
     if(direction(board,index).adjacentMines === 0 && !direction(board,index).revealed
     && !direction(board,index).flagged){
@@ -717,7 +719,7 @@ function CheckForEmpty(direction, board, index){
         emptyCheck = true;
     }
 }
-//Check For Adjacent Numbers when Flooding
+//Check For Adjacent Numbers when Flooding // is flooding === making the board ?
 function CheckForNumber(direction, board, index){
     if(direction(board,index).adjacentMines > 0 && !direction(board,index).revealed
     && !direction(board,index).flagged){
@@ -733,7 +735,7 @@ function FloodEmptySquares(){
         if (boardArray[i].revealed && boardArray[i].adjacentMines === 0){
             //Check NorthWest Corner
             if(boardArray[i].index === 0){
-                CheckForEmpty(CheckSouth, boardArray, i);
+                CheckForEmpty(CheckSouth, boardArray, i); // x2 ! 
                 CheckForEmpty(CheckEast, boardArray, i);
                 CheckForEmpty(CheckSouthEast, boardArray, i);
             }
@@ -807,7 +809,7 @@ function FloodNumberSquares(){
     {
         if (boardArray[i].revealed && boardArray[i].adjacentMines === 0){
             //Check NorthWest Corner
-            if(boardArray[i].index === 0){
+            if(boardArray[i].index === 0){ // x3 !!!!!!!!!!!!!!!!!!!!!!!!!
                 CheckForNumber(CheckSouth, boardArray, i);
                 CheckForNumber(CheckEast, boardArray, i);
                 CheckForNumber(CheckSouthEast, boardArray, i);

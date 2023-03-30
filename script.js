@@ -849,7 +849,7 @@ function resetSquareClicks(){
                         let element = document.getElementById(boardArray[index].index).firstChild
                         let flag = document.createElement("div")
                         flag.setAttribute("id", "flag")
-                        flag.innerHTML = `<img src=${(flagStyleArray)}>`
+                        flag.innerHTML = `<img src=${selectedIcon(flagStyleArray)}>`
                         element.appendChild(flag)
                         boardArray[index].flagged = true
                         diffuse--
